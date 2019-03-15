@@ -1,0 +1,14 @@
+openapis: 
+  naver: 
+    limit: 25000
+    urls: 
+      blog: https://openapi.naver.com/v1/search/blog.json
+      news: https://openapi.naver.com/v1/search/news.json
+      web: https://openapi.naver.com/v1/search/webkr.json
+    client-id: LVS8txbm57fRHlZCzW7L
+    client-secret: DXoSIRxvIf
+  kakao: 
+    restapi-key: 7ab961ab5c0afe56157553d6b25fdb0d
+    urls: 
+      web: https://dapi.kakao.com/v2/search/web
+      blog: https://dapi.kakao.com/v2/search/blog

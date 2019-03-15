@@ -1,0 +1,9 @@
+openapi:
+  naver:
+    client_id: LVS8txbm57fRHlZCzW7L
+    client_secret: DXoSIRxvIf
+    limit: 25000
+    url_list:
+      - https://openapi.naver.com/v1/search/blog.json
+      - https://openapi.naver.com/v1/search/news.json
+      - https://openapi.naver.com/v1/search/webkr.json

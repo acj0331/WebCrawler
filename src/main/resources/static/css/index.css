@@ -1,0 +1,73 @@
+.menuBox {
+	float: left;
+	width: 200px;
+	height: 100%;
+	background-color: #330086;
+}
+
+* {
+	font-family: 'Malgun Gothic';
+	margin: 0;
+	padding: 0;
+}
+
+.body {
+	width: 1200px;
+}
+
+body>.body, .body>div {
+	height: 100%;
+}
+
+.mainFrame {
+	margin-left: 200px;
+	padding-top: 80px;
+	padding-left: 100px;
+	padding-right: 100px;
+	width: 800px;
+	background-color: white;
+}
+
+.leftFrame {
+	width: 200px;
+	float: left;
+}
+
+html, body {
+	height: 100%;
+	overflow: hidden;
+	background-color: #f3f3f3;
+}
+
+.menuBtn {
+	cursor: pointer;
+	vertical-align: middle;
+	height: 70px;
+	text-align: center;
+	line-height: 70px;
+	margin-bottom: 2px;
+}
+
+.menuBtn * {
+	font-size: 20px;
+	font-weight: bold;
+	color: white;
+}
+
+div.menuBtn:hover {
+	background-color: #4700b9;
+}
+
+.doCollectBtn {
+	width: 200px;
+	height: 60px;
+	line-height: 60px;
+	background-color: #3a0b81;
+	border-radius: 5px;
+	text-align: center;
+	color: white;
+	font-weight: bold;
+	font-size: 20px;
+	float: right;
+	cursor: pointer;
+}

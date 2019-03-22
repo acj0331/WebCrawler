@@ -8,11 +8,19 @@ import org.springframework.data.elasticsearch.annotations.Document;
  * */
 @Document(indexName="webcrawler", type="web_summary")
 public class ItemObject {
+	@Id
+	private Integer id;
     private String title;
     private String link;
     private String description;
     
-    public final String getTitle() {
+    public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public final String getTitle() {
         return title;
     }
     public final void setTitle(String title) {
@@ -22,7 +30,8 @@ public class ItemObject {
         return link;
     }
     
-    @Id
+    
+    
     public final void setLink(String link) {
         this.link = link;
     }

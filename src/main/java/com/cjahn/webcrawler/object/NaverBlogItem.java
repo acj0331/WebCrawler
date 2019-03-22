@@ -1,7 +1,8 @@
 package com.cjahn.webcrawler.object;
 
-import javax.json.bind.JsonbBuilder;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(value= {"bloggername, bloggerlink"})
 public class NaverBlogItem extends ItemObject{
     private String bloggername;
     private String bloggerlink;

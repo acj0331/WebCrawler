@@ -1,14 +1,16 @@
-package com.cjahn.webcrawler.core;
+package com.cjahn.webcrawler.core.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import javax.annotation.PostConstruct;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.cjahn.webcrawler.config.OpenAPIConfig;
@@ -19,50 +21,43 @@ import com.cjahn.webcrawler.object.NaverObject;
 import com.cjahn.webcrawler.object.NaverWeb;
 import com.cjahn.webcrawler.object.ReqCollect;
 import com.cjahn.webcrawler.utility.CrawlerUtil;
-/*
- * https://blog.outsider.ne.kr/1066
- * threadpool
- * */
-public class NaverCrawler extends WebCrawler {
-    @Autowired
+
+@Service
+public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  {
+	@Autowired
+	OpenAPIConfig apiConfig;
+	
+	@Autowired
     WebSummaryService svc;
-    
+
+    protected LinkedHashMap<String, Object> config;
     private int limit;
     private LinkedHashMap<String, Object> urls;
     private HashMap<String, String> httpHeader;
     private int display;
     private String sort;
+    private Jsonb jsonb;
 
-    @SuppressWarnings("unchecked")
-    public NaverCrawler(Object v) {
-        super(v);
 
-        this.limit = (int) this.config.get("limit");
-        this.urls = (LinkedHashMap<String, Object>) this.config.get("urls");
-        this.httpHeader = new HashMap<>();
-        this.httpHeader.put("X-Naver-Client-Id", (String) this.config.get("client-id"));
-        this.httpHeader.put("X-Naver-Client-Secret", (String) this.config.get("client-secret"));
+    
+    @PostConstruct	
+	public void init() {
+		this.config = (LinkedHashMap<String, Object>) this.apiConfig.getOpenapis().get("naver");
+		this.limit = (int) this.config.get("limit");
+		this.urls = (LinkedHashMap<String, Object>) this.config.get("urls");
+		this.httpHeader = new HashMap<>();
+		this.httpHeader.put("X-Naver-Client-Id", (String) this.config.get("client-id"));
+		this.httpHeader.put("X-Naver-Client-Secret", (String) this.config.get("client-secret"));
+		
+		this.display = 10;
+		this.sort = "date";
+		
+		jsonb = JsonbBuilder.create();
+	}
 
-        this.display = 10;
-        this.sort = "date";
-    }
-
-    public String collectBlogAndNews(String apiURL, int index) throws Exception {
-        apiURL = String.format("%s&display=%d&start=%d&sort=%s", apiURL, this.display, index, this.sort);
-
-        return CrawlerUtil.RequestAPI(apiURL, RequestMethod.GET, httpHeader);
-    }
-
-    public String collectWeb(String apiURL, int index) throws Exception {
-        apiURL = String.format("%s&display=%d&start=%d", apiURL, this.display, index);
-
-        return CrawlerUtil.RequestAPI(apiURL, RequestMethod.GET, httpHeader);
-    }
-
-    @Override
-    public void doCollect(ReqCollect reqCollect) {
-        Jsonb jsonb = JsonbBuilder.create();
-        System.out.println("naver :: doCollect");
+	@Override
+	public void doCollect(ReqCollect reqCollect) {      
+		System.out.println("naver :: doCollect");
 
         reqCollect.getKeyWordList().forEach(keyword -> {
             try {
@@ -79,8 +74,10 @@ public class NaverCrawler extends WebCrawler {
                                 restObj = jsonb.fromJson(restResult, NaverBlog.class);
                                 for (int i = 0; i < ((NaverBlog)restObj).getItems().size(); i++) {
                                     //send data
-                                    svc.save(((NaverBlog)restObj).getItems().get(i));
+//                                    svc.save(((NaverBlog)restObj).getItems().get(i));
                                     System.out.println(((NaverBlog)restObj).getItems().get(i).toString());
+                                    
+                                    svc.save(((NaverBlog)restObj).getItems().get(i));
                                 }
                                 
                             } else if (apiType.equals("news")) {
@@ -116,7 +113,16 @@ public class NaverCrawler extends WebCrawler {
 
     }
 
-    @Override
-    public void init(OpenAPIConfig config) {
+
+    public String collectBlogAndNews(String apiURL, int index) throws Exception {
+        apiURL = String.format("%s&display=%d&start=%d&sort=%s", apiURL, this.display, index, this.sort);
+
+        return CrawlerUtil.RequestAPI(apiURL, RequestMethod.GET, httpHeader);
+    }
+
+    public String collectWeb(String apiURL, int index) throws Exception {
+        apiURL = String.format("%s&display=%d&start=%d", apiURL, this.display, index);
+
+        return CrawlerUtil.RequestAPI(apiURL, RequestMethod.GET, httpHeader);
     }
 }

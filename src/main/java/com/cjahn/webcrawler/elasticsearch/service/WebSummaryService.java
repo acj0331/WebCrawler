@@ -1,7 +1,6 @@
 package com.cjahn.webcrawler.elasticsearch.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import java.util.List;
 
 import com.cjahn.webcrawler.object.ItemObject;
 /*
@@ -16,5 +15,6 @@ public interface WebSummaryService {
     
     Iterable<ItemObject> findAll();
     
-    Page<ItemObject> findByLink(String link, PageRequest pageRequest);
+    List<ItemObject> findByUrl(String url);
+    List<ItemObject> findByTitle(String title);
 }

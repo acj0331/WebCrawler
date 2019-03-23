@@ -40,7 +40,8 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 
 
     
-    @PostConstruct	
+    @SuppressWarnings("unchecked")
+	@PostConstruct	
 	public void init() {
 		this.config = (LinkedHashMap<String, Object>) this.apiConfig.getOpenapis().get("naver");
 		this.limit = (int) this.config.get("limit");

@@ -2,6 +2,9 @@ package com.cjahn.webcrawler.object;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /*
  * elasticsearch 이해
  * https://12bme.tistory.com/171
@@ -9,15 +12,21 @@ import org.springframework.data.elasticsearch.annotations.Document;
 @Document(indexName="webcrawler", type="web_summary")
 public class ItemObject {
 	@Id
-	private Integer id;
+	private Number id;
     private String title;
+    @JsonIgnore
     private String link;
     private String description;
     
-    public Integer getId() {
+    /*
+     * findByLink 함수 오동작으로 인해 String 변수 사용 
+     * */
+    private String url;
+    
+    public Number getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Number id) {
 		this.id = id;
 	}
 	public final String getTitle() {
@@ -29,10 +38,8 @@ public class ItemObject {
     public final String getLink() {
         return link;
     }
-    
-    
-    
     public final void setLink(String link) {
+    	this.setUrl(link);
         this.link = link;
     }
     public final String getDescription() {
@@ -41,9 +48,10 @@ public class ItemObject {
     public final void setDescription(String description) {
         this.description = description;
     }
-    
-    @Override
-    public String toString() {
-        return String.format("{\"description\":%s,\"link\":%s,\"title\":%s}", this.description, this.link, this.title);
-    }
+	public String getUrl() {
+		return this.getLink();
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
 }

@@ -1,8 +1,9 @@
 package com.cjahn.webcrawler.elasticsearch.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import com.cjahn.webcrawler.elasticsearch.repository.WebSummaryRepository;
@@ -19,6 +20,8 @@ public class WebSummaryServiceImpl implements WebSummaryService{
     
     @Override
     public ItemObject save(ItemObject item) {
+    	PageImpl<ItemObject> tes = (PageImpl<ItemObject>) this.findAll();
+		item.setId(tes.getTotalElements());
         return repository.save(item);
     }
 
@@ -30,13 +33,20 @@ public class WebSummaryServiceImpl implements WebSummaryService{
     @Override
     public Iterable<ItemObject> findAll() {
         // TODO Auto-generated method stub
-        return null;
+        return repository.findAll();
     }
 
     @Override
-    public Page<ItemObject> findByLink(String link, PageRequest pageRequest) {
+    public List<ItemObject> findByUrl(String url) {
         // TODO Auto-generated method stub
-        return null;
+        return repository.findByLink(url);
     }
 
+	@Override
+	public List<ItemObject> findByTitle(String title) {
+		// TODO Auto-generated method stub
+		return repository.findByTitle(title);
+	}
+    
+    
 }

@@ -10,7 +10,8 @@ public class NaverObject {
     private int start;
     private int display;
     protected int itemSize;
-    protected List<ItemObject> items;
+
+    private List<ItemObject> items;
     
     public final String getLastBuildDate() {
         return lastBuildDate;
@@ -43,7 +44,13 @@ public class NaverObject {
         this.itemSize = itemSize;
     }
 
-    @Override
+    public List<ItemObject> getItems() {
+		return items;
+	}
+	public void setItems(List<ItemObject> items) {
+		this.items = items;
+	}
+	@Override
     public String toString() {
         return JsonbBuilder.create().toJson(this);
     }

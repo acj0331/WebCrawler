@@ -2,32 +2,40 @@ package com.cjahn.webcrawler.object;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.util.Base64Utils;
 
 /*
  * elasticsearch 이해
  * https://12bme.tistory.com/171
  * */
-@Document(indexName="webcrawler", type="web_summary")
+@Document(indexName="web_items", type="web_item")
 public class ItemObject {
 	@Id
 	private Number id;
+	private Number reqCollectId;
     private String title;
-    @JsonIgnore
     private String link;
     private String description;
+    private String keyWord;
+    private String type;
     
     /*
-     * findByLink 함수 오동작으로 인해 String 변수 사용 
+     * elasticsearch에서 url format 검색이 안되므로 base64 encoding 하여 저장.
+     * 추후 방법을 찾아봐야함 
      * */
-    private String url;
+    private String base64;
     
     public Number getId() {
 		return id;
 	}
 	public void setId(Number id) {
 		this.id = id;
+	}
+	public Number getReqCollectId() {
+		return reqCollectId;
+	}
+	public void setReqCollectId(Number reqCollectId) {
+		this.reqCollectId = reqCollectId;
 	}
 	public final String getTitle() {
         return title;
@@ -39,7 +47,7 @@ public class ItemObject {
         return link;
     }
     public final void setLink(String link) {
-    	this.setUrl(link);
+    	this.setBase64(link);
         this.link = link;
     }
     public final String getDescription() {
@@ -48,10 +56,22 @@ public class ItemObject {
     public final void setDescription(String description) {
         this.description = description;
     }
-	public String getUrl() {
-		return this.getLink();
+	public String getKeyWord() {
+		return keyWord;
 	}
-	public void setUrl(String url) {
-		this.url = url;
+	public void setKeyWord(String keyWord) {
+		this.keyWord = keyWord;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	public String getBase64() {		
+		return base64;
+	}
+	public void setBase64(String base64) {
+		this.base64 = new String(Base64Utils.encode(base64.getBytes()));
 	}
 }

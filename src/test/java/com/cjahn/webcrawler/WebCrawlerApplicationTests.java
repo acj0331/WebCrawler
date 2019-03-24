@@ -11,7 +11,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.cjahn.webcrawler.core.service.NaverCrawlerInterface;
-import com.cjahn.webcrawler.elasticsearch.service.WebSummaryService;
+import com.cjahn.webcrawler.elasticsearch.service.WebSummaryESService;
 import com.cjahn.webcrawler.object.ItemObject;
 import com.cjahn.webcrawler.object.NaverBlogItem;
 import com.cjahn.webcrawler.object.ReqCollect;
@@ -20,22 +20,24 @@ import com.cjahn.webcrawler.service.WebCrawlerService;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class WebCrawlerApplicationTests {
+	
+	
     @Autowired
     WebCrawlerService crawlerService;
-    
-    
-
-//	@Test
+	//@Test
 	public void contextLoads() {
 	    ReqCollect req = new ReqCollect();
 	    
+	    ArrayList<String> webPortal = new ArrayList<>();
 	    ArrayList<String> keyword = new ArrayList<>();
+	    
+	    webPortal.add("naver");
+	    
 	    keyword.add("gtec");
 	    keyword.add("경기과학기술대학교");
 	    req.setKeyWordList(keyword);
+	    req.setWebPortalList(webPortal);
 	    
-	    
-	    crawlerService.init();
 	    crawlerService.doCollect(req);
 	    
 	}
@@ -44,7 +46,7 @@ public class WebCrawlerApplicationTests {
 	NaverCrawlerInterface naverCrawler;
 	
 	//@Test
-	public void naverCrawlerTest() {
+	public void naverCrawlerTest() throws Exception {
 	    ReqCollect req = new ReqCollect();
 	    
 	    ArrayList<String> keyword = new ArrayList<>();
@@ -52,16 +54,17 @@ public class WebCrawlerApplicationTests {
 	    keyword.add("경기과학기술대학교");
 	    req.setKeyWordList(keyword);
 	    
-		naverCrawler.doCollect(req);
+		naverCrawler.setReqCollect(req);
+		naverCrawler.doCollect();
 		
 	}
 	
 	
 
 	@Autowired
-    WebSummaryService svc;
+    WebSummaryESService svc;
 	
-	@Test
+	//@Test
 	public void esTest() {
 		NaverBlogItem item = new NaverBlogItem();
 		
@@ -71,7 +74,7 @@ public class WebCrawlerApplicationTests {
 		
 		PageImpl<ItemObject> tes = (PageImpl<ItemObject>) svc.findAll();
 		System.out.println(tes.getTotalElements());
-		List<ItemObject> itemList = svc.findByUrl(item.getUrl());
+		List<ItemObject> itemList = svc.findByUrl(item.getLink());
 		svc.save(item);
 		List<ItemObject> itemList2 = svc.findByTitle(item.getTitle());
 //		System.out.println(itemList.size());

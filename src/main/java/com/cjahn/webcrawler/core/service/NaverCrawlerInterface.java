@@ -3,8 +3,7 @@ package com.cjahn.webcrawler.core.service;
 import com.cjahn.webcrawler.object.ReqCollect;
 
 public interface NaverCrawlerInterface {
-//	public void init(OpenAPIConfig config);
-
-//    @Async("WebCrawlingExecutor")
-	public void doCollect(ReqCollect reqCollect);
+	public void setReqCollect(ReqCollect reqCollect);
+	public void doCollectAsync() throws Exception;
+	public void doCollect() throws Exception;
 }

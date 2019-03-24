@@ -10,7 +10,8 @@ import com.cjahn.webcrawler.elasticsearch.repository.WebSummaryRepository;
 import com.cjahn.webcrawler.object.ItemObject;
 
 @Service
-public class WebSummaryServiceImpl implements WebSummaryService{
+public class WebSummaryESServiceImpl implements WebSummaryESService{
+	
     private WebSummaryRepository repository;
     
     @Autowired
@@ -20,8 +21,14 @@ public class WebSummaryServiceImpl implements WebSummaryService{
     
     @Override
     public ItemObject save(ItemObject item) {
+//    	List<ItemObject> obj = this.findByBase64(item.getBase64());
+//    	if(obj.size()>0)
+//    		return null;
+    	
     	PageImpl<ItemObject> tes = (PageImpl<ItemObject>) this.findAll();
 		item.setId(tes.getTotalElements());
+		
+		
         return repository.save(item);
     }
 
@@ -46,6 +53,12 @@ public class WebSummaryServiceImpl implements WebSummaryService{
 	public List<ItemObject> findByTitle(String title) {
 		// TODO Auto-generated method stub
 		return repository.findByTitle(title);
+	}
+
+	@Override
+	public List<ItemObject> findByBase64(String base64) {
+		// TODO Auto-generated method stub
+		return repository.findByBase64(base64);
 	}
     
     

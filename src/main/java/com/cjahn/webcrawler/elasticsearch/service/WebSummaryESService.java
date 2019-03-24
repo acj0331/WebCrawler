@@ -6,7 +6,7 @@ import com.cjahn.webcrawler.object.ItemObject;
 /*
  * https://kimseunghyun76.tistory.com/444
  * */
-public interface WebSummaryService {
+public interface WebSummaryESService {
     public ItemObject save(ItemObject item);
     
     public void delete(ItemObject item);
@@ -17,4 +17,5 @@ public interface WebSummaryService {
     
     List<ItemObject> findByUrl(String url);
     List<ItemObject> findByTitle(String title);
+    List<ItemObject> findByBase64(String base64);
 }

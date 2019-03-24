@@ -10,11 +10,13 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.cjahn.webcrawler.config.OpenAPIConfig;
-import com.cjahn.webcrawler.elasticsearch.service.WebSummaryService;
+import com.cjahn.webcrawler.elasticsearch.service.WebSummaryESService;
+import com.cjahn.webcrawler.object.ItemObject;
 import com.cjahn.webcrawler.object.NaverBlog;
 import com.cjahn.webcrawler.object.NaverNews;
 import com.cjahn.webcrawler.object.NaverObject;
@@ -22,22 +24,26 @@ import com.cjahn.webcrawler.object.NaverWeb;
 import com.cjahn.webcrawler.object.ReqCollect;
 import com.cjahn.webcrawler.utility.CrawlerUtil;
 
+
 @Service
 public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  {
 	@Autowired
 	OpenAPIConfig apiConfig;
 	
 	@Autowired
-    WebSummaryService svc;
+    WebSummaryESService svc;
 
     protected LinkedHashMap<String, Object> config;
-    private int limit;
     private LinkedHashMap<String, Object> urls;
     private HashMap<String, String> httpHeader;
     private int display;
     private String sort;
     private Jsonb jsonb;
 
+    /*
+     * TODO : api limit 제어(하루에 25000개)
+     * */
+    private int limit;
 
     
     @SuppressWarnings("unchecked")
@@ -55,12 +61,17 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 		
 		jsonb = JsonbBuilder.create();
 	}
+    
+    @Override
+    @Async("WebCrawlingExecutor")
+    public void doCollectAsync() {
+    	this.doCollect();
+    }
 
-	@Override
-	public void doCollect(ReqCollect reqCollect) {      
-		System.out.println("naver :: doCollect");
-
-        reqCollect.getKeyWordList().forEach(keyword -> {
+    @Override
+    public void doCollect() {
+    	// TODO Auto-generated method stub
+    	this.reqCollect.getKeyWordList().forEach(keyword -> {
             try {
                 String text = URLEncoder.encode(keyword, "UTF-8");
                 this.urls.forEach((apiType, apiURL) -> {
@@ -72,15 +83,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
                             NaverObject restObj = null;
                             if (apiType.equals("blog")) {
                                 restResult = collectBlogAndNews(String.valueOf(apiURL), start);
-                                restObj = jsonb.fromJson(restResult, NaverBlog.class);
-                                for (int i = 0; i < ((NaverBlog)restObj).getItems().size(); i++) {
-                                    //send data
-//                                    svc.save(((NaverBlog)restObj).getItems().get(i));
-                                    System.out.println(((NaverBlog)restObj).getItems().get(i).toString());
-                                    
-                                    svc.save(((NaverBlog)restObj).getItems().get(i));
-                                }
-                                
+                                restObj = jsonb.fromJson(restResult, NaverBlog.class);    
                             } else if (apiType.equals("news")) {
                                 restResult = collectBlogAndNews(String.valueOf(apiURL), start);
                                 restObj = jsonb.fromJson(restResult, NaverNews.class);
@@ -88,18 +91,24 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
                                 restResult = collectWeb(String.valueOf(apiURL), start);
                                 restObj = jsonb.fromJson(restResult, NaverWeb.class);
                             }
-
-                            /*
-                             * TODO send elastic search & Duplicate check
-                             */
-                            System.out.println(apiType + "\t"+restResult);
-                            if(restObj.getItemSize() != this.display) {
-                                break;
+                          
+                            
+                            for (int i = 0; i < restObj.getItems().size(); i++) {
+                                //save data
+                            	ItemObject item =restObj.getItems().get(i);
+                            	/*
+                            	 * relation info
+                            	 * */
+                            	item.setReqCollectId(reqCollect.getId());
+                            	item.setKeyWord(keyword);
+                            	item.setType(apiType);
+                            	
+                                svc.save(item);
                             }
                             
-                            
-                            
-
+                            if(restObj.getItems().size() != this.display) {
+                                break;
+                            }
                         }
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
@@ -111,10 +120,8 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
                 e.printStackTrace();
             }
         });
-
     }
-
-
+    
     public String collectBlogAndNews(String apiURL, int index) throws Exception {
         apiURL = String.format("%s&display=%d&start=%d&sort=%s", apiURL, this.display, index, this.sort);
 

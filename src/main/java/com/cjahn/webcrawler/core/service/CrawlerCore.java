@@ -4,14 +4,19 @@ import java.util.LinkedHashMap;
 
 import com.cjahn.webcrawler.object.ReqCollect;
 
-public class CrawlerCore {
+public class CrawlerCore extends Thread {
 	protected LinkedHashMap<String, Object> config;
-	/*
-	public CrawlerCore(LinkedHashMap<String, Object> config) {
-		this.config = config;
+	protected ReqCollect reqCollect;
+	
+	public void setReqCollect(ReqCollect reqCollect) {
+		this.reqCollect = reqCollect;
 	}
-*/
-	public void doCollect(ReqCollect reqCollect) {
-		
+
+	public void doCollectAsync() throws Exception{
+		throw new Exception("Not supported");
+	}
+	
+	public void doCollect() throws Exception{
+		throw new Exception("Not supported");
 	}
 }

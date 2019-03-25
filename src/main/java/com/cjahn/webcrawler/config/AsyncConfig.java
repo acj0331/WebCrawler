@@ -17,7 +17,7 @@ public class AsyncConfig {
         taskExecutor.setCorePoolSize(5);
         taskExecutor.setMaxPoolSize(10);
         taskExecutor.setQueueCapacity(30);
-        taskExecutor.setThreadNamePrefix("Executor-");
+        taskExecutor.setThreadNamePrefix("WebCrawlingExecutor-");
         taskExecutor.initialize();
         return taskExecutor;
     }

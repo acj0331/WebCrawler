@@ -11,7 +11,13 @@ public class ReqCollect {
 	private Long id;
 	private List<String> webPortalList;
     private List<String> keyWordList;
+    private String crawlerStatus;
 
+    public ReqCollect() {
+		this.id=System.currentTimeMillis();
+		this.crawlerStatus = "crawling";
+	}
+    
     public Long getId() {
 		return id;
 	}
@@ -34,5 +40,13 @@ public class ReqCollect {
 
 	public void setWebPortalList(List<String> webPortalList) {
 		this.webPortalList = webPortalList;
+	}
+
+	public String getCrawlerStatus() {
+		return crawlerStatus;
+	}
+
+	public void setCrawlerStatus(String crawlerStatus) {
+		this.crawlerStatus = crawlerStatus;
 	}
 }

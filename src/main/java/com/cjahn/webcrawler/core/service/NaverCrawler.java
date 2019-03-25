@@ -1,8 +1,8 @@
 package com.cjahn.webcrawler.core.service;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import javax.annotation.PostConstruct;
@@ -15,13 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.cjahn.webcrawler.config.OpenAPIConfig;
+import com.cjahn.webcrawler.elasticsearch.service.ReqCollectESService;
 import com.cjahn.webcrawler.elasticsearch.service.WebSummaryESService;
 import com.cjahn.webcrawler.object.ItemObject;
-import com.cjahn.webcrawler.object.NaverBlog;
-import com.cjahn.webcrawler.object.NaverNews;
 import com.cjahn.webcrawler.object.NaverObject;
-import com.cjahn.webcrawler.object.NaverWeb;
-import com.cjahn.webcrawler.object.ReqCollect;
+import com.cjahn.webcrawler.utility.CrawlerChecker;
 import com.cjahn.webcrawler.utility.CrawlerUtil;
 
 
@@ -31,7 +29,10 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	OpenAPIConfig apiConfig;
 	
 	@Autowired
-    WebSummaryESService svc;
+    WebSummaryESService webItemEsSvc;
+	
+	@Autowired
+	ReqCollectESService collectEsSvc;
 
     protected LinkedHashMap<String, Object> config;
     private LinkedHashMap<String, Object> urls;
@@ -70,56 +71,69 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 
     @Override
     public void doCollect() {
-    	// TODO Auto-generated method stub
-    	this.reqCollect.getKeyWordList().forEach(keyword -> {
-            try {
-                String text = URLEncoder.encode(keyword, "UTF-8");
-                this.urls.forEach((apiType, apiURL) -> {
-                    apiURL = String.format("%s?query=%s", apiURL, text);
-
-                    String restResult = null;
-                    try {
-                        for (int start = 1; start <= 1000; start += this.display) {
-                            NaverObject restObj = null;
-                            if (apiType.equals("blog")) {
-                                restResult = collectBlogAndNews(String.valueOf(apiURL), start);
-                                restObj = jsonb.fromJson(restResult, NaverBlog.class);    
-                            } else if (apiType.equals("news")) {
-                                restResult = collectBlogAndNews(String.valueOf(apiURL), start);
-                                restObj = jsonb.fromJson(restResult, NaverNews.class);
-                            } else if (apiType.equals("web")) {
-                                restResult = collectWeb(String.valueOf(apiURL), start);
-                                restObj = jsonb.fromJson(restResult, NaverWeb.class);
-                            }
-                          
-                            
-                            for (int i = 0; i < restObj.getItems().size(); i++) {
-                                //save data
-                            	ItemObject item =restObj.getItems().get(i);
-                            	/*
-                            	 * relation info
-                            	 * */
-                            	item.setReqCollectId(reqCollect.getId());
-                            	item.setKeyWord(keyword);
-                            	item.setType(apiType);
-                            	
-                                svc.save(item);
-                            }
-                            
-                            if(restObj.getItems().size() != this.display) {
-                                break;
-                            }
-                        }
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                });
-            } catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        });
+    	CrawlerChecker checker = new CrawlerChecker()	;
+    	checker.setCollectEsSvc(collectEsSvc);
+    	checker.setReqCollect(reqCollect);
+    	checker.start();
+    	
+    	try {
+    		
+	    	for (int i = 0; i < this.reqCollect.getKeyWordList().size(); i++) {
+				String keyword = this.reqCollect.getKeyWordList().get(i);
+				String text = URLEncoder.encode(keyword, "UTF-8");
+	            Iterator<String> apiTypes = this.urls.keySet().iterator();
+	            while( apiTypes.hasNext() ){
+	            	String apiType =apiTypes.next();
+	            	String apiURL = (String) this.urls.get(apiType);
+	                apiURL = String.format("%s?query=%s", apiURL, text);
+	                String restResult = null;
+	                for (int start = 1; start <= 1000; start += this.display) {
+	                    NaverObject restObj = null;
+	                    if (apiType.equals("web")) 
+	                    	restResult = collectWeb(String.valueOf(apiURL), start);
+	                    else
+	                    	restResult = collectBlogAndNews(String.valueOf(apiURL), start);
+	                    
+	                    
+	                    restObj = jsonb.fromJson(restResult, NaverObject.class);  
+	                    for (int j = 0; j < restObj.getItems().size(); j++) {
+	                		/*
+	                		 * 크롤링 중간에 취소할 경우 
+	                		 * */
+	                    	if(checker.getCrawlerStatus().equals("canceled")) {
+	                    		reqCollect.setCrawlerStatus("canceled");
+	                            collectEsSvc.save(reqCollect);
+	                            checker.setStop(true);
+	                            checker.join();
+	                    		return;
+	                    	}
+	                    	
+	                        //save data
+	                    	ItemObject item =restObj.getItems().get(j);
+	                    	/*
+	                    	 * relation info
+	                    	 * */
+	                    	item.setReqCollectId(reqCollect.getId());
+	                    	item.setKeyWord(keyword);
+	                    	item.setType(apiType);
+	                    	
+	                        webItemEsSvc.save(item);
+	                    }
+	                    
+	                    if(restObj.getItems().size() != this.display) {
+	                        break;
+	                    }
+	                }
+	            }
+			}
+	    	
+	    	reqCollect.setCrawlerStatus("finished");
+            collectEsSvc.save(reqCollect);
+            checker.setStop(true);
+            checker.join();
+    	 } catch (Exception e) {
+             e.printStackTrace();
+         }
     }
     
     public String collectBlogAndNews(String apiURL, int index) throws Exception {

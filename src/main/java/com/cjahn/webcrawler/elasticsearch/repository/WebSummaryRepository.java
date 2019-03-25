@@ -1,6 +1,7 @@
 package com.cjahn.webcrawler.elasticsearch.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
@@ -11,5 +12,5 @@ public interface WebSummaryRepository extends ElasticsearchRepository<ItemObject
 
 	List<ItemObject> findByTitle(String title);
 
-	List<ItemObject> findByBase64(String base64);
+	Optional<ItemObject> findByBase64(String base64);
 }

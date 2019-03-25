@@ -1,7 +1,13 @@
 package com.cjahn.webcrawler.object;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.util.Base64Utils;
 
 /*
@@ -15,6 +21,7 @@ public class ItemObject {
 	private Number reqCollectId;
     private String title;
     private String link;
+    @Field(type=FieldType.Text, analyzer="")
     private String description;
     private String keyWord;
     private String type;
@@ -24,7 +31,11 @@ public class ItemObject {
      * 추후 방법을 찾아봐야함 
      * */
     private String base64;
-    
+    /*
+    public ItemObject() {
+		//this.id=System.currentTimeMillis();
+	}
+    */
     public Number getId() {
 		return id;
 	}
@@ -46,7 +57,7 @@ public class ItemObject {
     public final String getLink() {
         return link;
     }
-    public final void setLink(String link) {
+    public final void setLink(String link) throws UnsupportedEncodingException {
     	this.setBase64(link);
         this.link = link;
     }
@@ -71,7 +82,8 @@ public class ItemObject {
 	public String getBase64() {		
 		return base64;
 	}
-	public void setBase64(String base64) {
+	public void setBase64(String base64) throws UnsupportedEncodingException {
 		this.base64 = new String(Base64Utils.encode(base64.getBytes()));
+		this.base64 = URLEncoder.encode(this.base64, "utf-8");
 	}
 }

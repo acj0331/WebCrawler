@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import com.cjahn.webcrawler.config.OpenAPIConfig;
 import com.cjahn.webcrawler.elasticsearch.service.WebSummaryESService;
-import com.cjahn.webcrawler.object.ReqCollect;
 
 @Service
 public class KakaoCrawler extends CrawlerCore  implements KakoCrawlerInterface{

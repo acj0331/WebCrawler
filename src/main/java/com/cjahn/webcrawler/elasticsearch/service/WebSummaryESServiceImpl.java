@@ -1,6 +1,7 @@
 package com.cjahn.webcrawler.elasticsearch.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
@@ -21,12 +22,13 @@ public class WebSummaryESServiceImpl implements WebSummaryESService{
     
     @Override
     public ItemObject save(ItemObject item) {
-//    	List<ItemObject> obj = this.findByBase64(item.getBase64());
-//    	if(obj.size()>0)
-//    		return null;
+    	Optional<ItemObject> obj = this.findByBase64(item.getBase64());
+    	if(!obj.isEmpty()) {
+    		return null;
+    	}
     	
-    	PageImpl<ItemObject> tes = (PageImpl<ItemObject>) this.findAll();
-		item.setId(tes.getTotalElements());
+    	//PageImpl<ItemObject> tes = (PageImpl<ItemObject>) this.findAll();
+		item.setId(System.currentTimeMillis());
 		
 		
         return repository.save(item);
@@ -56,7 +58,7 @@ public class WebSummaryESServiceImpl implements WebSummaryESService{
 	}
 
 	@Override
-	public List<ItemObject> findByBase64(String base64) {
+	public Optional<ItemObject> findByBase64(String base64) {
 		// TODO Auto-generated method stub
 		return repository.findByBase64(base64);
 	}

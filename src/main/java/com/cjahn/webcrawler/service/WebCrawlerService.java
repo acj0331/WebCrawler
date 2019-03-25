@@ -1,7 +1,6 @@
 package com.cjahn.webcrawler.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -18,9 +17,6 @@ import com.cjahn.webcrawler.object.ReqCollect;
 
 @Service
 public class WebCrawlerService {
-	private static final String NAVER = "naver";
-	private static final String KAKAO = "kakao";
-	
 	List<CrawlerCore> crawlerList;
 	
 	@Autowired
@@ -38,7 +34,7 @@ public class WebCrawlerService {
     public void init() {
     	this.crawlerList = new ArrayList<CrawlerCore>();
     	this.crawlerList.add(naverCrawler);
-    	this.crawlerList.add(kakaoCrawaler);
+    	//this.crawlerList.add(kakaoCrawaler);
     }
 	
 	public void doCollect(ReqCollect reqCollect) {
@@ -56,11 +52,5 @@ public class WebCrawlerService {
 				}
 			});
 		});
-		
-		this.crawlerList.forEach(v2->{
-			
-		});
-		
-		
 	}
 }

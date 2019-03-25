@@ -1,5 +1,6 @@
 package com.cjahn.webcrawler;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,9 +12,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.cjahn.webcrawler.core.service.NaverCrawlerInterface;
+import com.cjahn.webcrawler.elasticsearch.service.ReqCollectESService;
 import com.cjahn.webcrawler.elasticsearch.service.WebSummaryESService;
 import com.cjahn.webcrawler.object.ItemObject;
-import com.cjahn.webcrawler.object.NaverBlogItem;
 import com.cjahn.webcrawler.object.ReqCollect;
 import com.cjahn.webcrawler.service.WebCrawlerService;
 
@@ -41,11 +42,13 @@ public class WebCrawlerApplicationTests {
 	    crawlerService.doCollect(req);
 	    
 	}
-	
+
+	@Autowired
+	ReqCollectESService collectEsSvc;
 	@Autowired
 	NaverCrawlerInterface naverCrawler;
 	
-	//@Test
+	@Test
 	public void naverCrawlerTest() throws Exception {
 	    ReqCollect req = new ReqCollect();
 	    
@@ -54,6 +57,9 @@ public class WebCrawlerApplicationTests {
 	    keyword.add("경기과학기술대학교");
 	    req.setKeyWordList(keyword);
 	    
+	    //req.setId(System.currentTimeMillis());
+	    //req.setCrawlerStatus("crawling");
+	    collectEsSvc.save(req);
 		naverCrawler.setReqCollect(req);
 		naverCrawler.doCollect();
 		
@@ -65,8 +71,8 @@ public class WebCrawlerApplicationTests {
     WebSummaryESService svc;
 	
 	//@Test
-	public void esTest() {
-		NaverBlogItem item = new NaverBlogItem();
+	public void esTest() throws UnsupportedEncodingException {
+		ItemObject item = new ItemObject();
 		
 		item.setLink("https://usa.studyuhak.net/tag/%EC%8A%A4%ED%84%B0%EB%94%94%EC%9C%A0%ED%95%99");
 		item.setTitle("'스터디유학' 태그의 글 목록");

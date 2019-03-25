@@ -1,6 +1,7 @@
 package com.cjahn.webcrawler.elasticsearch.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.cjahn.webcrawler.object.ItemObject;
 /*
@@ -17,5 +18,5 @@ public interface WebSummaryESService {
     
     List<ItemObject> findByUrl(String url);
     List<ItemObject> findByTitle(String title);
-    List<ItemObject> findByBase64(String base64);
+    Optional<ItemObject> findByBase64(String base64);
 }

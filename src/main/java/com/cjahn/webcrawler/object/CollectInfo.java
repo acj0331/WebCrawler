@@ -5,15 +5,15 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-@Document(indexName="req_collects", type="req_collect")
-public class ReqCollect {
+@Document(indexName="collects", type="collect")
+public class CollectInfo {
 	@Id
 	private Long id;
 	private List<String> webPortalList;
     private List<String> keyWordList;
     private String crawlerStatus;
 
-    public ReqCollect() {
+    public CollectInfo() {
 		this.id=System.currentTimeMillis();
 		this.crawlerStatus = "crawling";
 	}

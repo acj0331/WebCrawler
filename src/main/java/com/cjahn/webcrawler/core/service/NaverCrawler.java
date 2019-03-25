@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.cjahn.webcrawler.config.OpenAPIConfig;
-import com.cjahn.webcrawler.elasticsearch.service.ReqCollectESService;
+import com.cjahn.webcrawler.elasticsearch.service.CollectESService;
 import com.cjahn.webcrawler.elasticsearch.service.WebSummaryESService;
 import com.cjahn.webcrawler.object.ItemObject;
 import com.cjahn.webcrawler.object.NaverObject;
@@ -32,7 +32,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
     WebSummaryESService webItemEsSvc;
 	
 	@Autowired
-	ReqCollectESService collectEsSvc;
+	CollectESService collectEsSvc;
 
     protected LinkedHashMap<String, Object> config;
     private LinkedHashMap<String, Object> urls;
@@ -73,13 +73,13 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
     public void doCollect() {
     	CrawlerChecker checker = new CrawlerChecker()	;
     	checker.setCollectEsSvc(collectEsSvc);
-    	checker.setReqCollect(reqCollect);
+    	checker.setCollectInfo(collectInfo);
     	checker.start();
     	
     	try {
     		
-	    	for (int i = 0; i < this.reqCollect.getKeyWordList().size(); i++) {
-				String keyword = this.reqCollect.getKeyWordList().get(i);
+	    	for (int i = 0; i < this.collectInfo.getKeyWordList().size(); i++) {
+				String keyword = this.collectInfo.getKeyWordList().get(i);
 				String text = URLEncoder.encode(keyword, "UTF-8");
 	            Iterator<String> apiTypes = this.urls.keySet().iterator();
 	            while( apiTypes.hasNext() ){
@@ -101,8 +101,8 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                		 * 크롤링 중간에 취소할 경우 
 	                		 * */
 	                    	if(checker.getCrawlerStatus().equals("canceled")) {
-	                    		reqCollect.setCrawlerStatus("canceled");
-	                            collectEsSvc.save(reqCollect);
+	                    		collectInfo.setCrawlerStatus("canceled");
+	                            collectEsSvc.save(collectInfo);
 	                            checker.setStop(true);
 	                            checker.join();
 	                    		return;
@@ -113,7 +113,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                    	/*
 	                    	 * relation info
 	                    	 * */
-	                    	item.setReqCollectId(reqCollect.getId());
+	                    	item.setCollectId(collectInfo.getId());
 	                    	item.setKeyWord(keyword);
 	                    	item.setType(apiType);
 	                    	
@@ -127,8 +127,8 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	            }
 			}
 	    	
-	    	reqCollect.setCrawlerStatus("finished");
-            collectEsSvc.save(reqCollect);
+	    	collectInfo.setCrawlerStatus("finished");
+            collectEsSvc.save(collectInfo);
             checker.setStop(true);
             checker.join();
     	 } catch (Exception e) {

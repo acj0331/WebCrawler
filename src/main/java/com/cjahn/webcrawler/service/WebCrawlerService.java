@@ -12,15 +12,15 @@ import com.cjahn.webcrawler.config.OpenAPIConfig;
 import com.cjahn.webcrawler.core.service.CrawlerCore;
 import com.cjahn.webcrawler.core.service.KakaoCrawler;
 import com.cjahn.webcrawler.core.service.NaverCrawler;
-import com.cjahn.webcrawler.elasticsearch.service.ReqCollectESService;
-import com.cjahn.webcrawler.object.ReqCollect;
+import com.cjahn.webcrawler.elasticsearch.service.CollectESService;
+import com.cjahn.webcrawler.object.CollectInfo;
 
 @Service
 public class WebCrawlerService {
 	List<CrawlerCore> crawlerList;
 	
 	@Autowired
-	ReqCollectESService reqCollectESService;
+	CollectESService reqCollectESService;
 	
 	@Autowired
 	OpenAPIConfig apiConfig;
@@ -37,8 +37,8 @@ public class WebCrawlerService {
     	//this.crawlerList.add(kakaoCrawaler);
     }
 	
-	public void doCollect(ReqCollect reqCollect) {
-		ReqCollect collectInfo = reqCollectESService.save(reqCollect);
+	public void doCollect(CollectInfo reqCollect) {
+		CollectInfo collectInfo = reqCollectESService.save(reqCollect);
 		
 		//collect는 별도의 thread로 동작시키며, 해당 thread는 수집중, 수집완료 의 상태를 갖는다.
 		reqCollect.getWebPortalList().forEach(v->{			

@@ -2,14 +2,14 @@ package com.cjahn.webcrawler.core.service;
 
 import java.util.LinkedHashMap;
 
-import com.cjahn.webcrawler.object.ReqCollect;
+import com.cjahn.webcrawler.object.CollectInfo;
 
 public class CrawlerCore extends Thread {
 	protected LinkedHashMap<String, Object> config;
-	protected ReqCollect reqCollect;
+	protected CollectInfo collectInfo;
 	
-	public void setReqCollect(ReqCollect reqCollect) {
-		this.reqCollect = reqCollect;
+	public void setReqCollect(CollectInfo collectInfo) {
+		this.collectInfo = collectInfo;
 	}
 
 	public void doCollectAsync() throws Exception{

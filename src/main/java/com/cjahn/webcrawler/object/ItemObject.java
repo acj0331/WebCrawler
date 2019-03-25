@@ -18,7 +18,7 @@ import org.springframework.util.Base64Utils;
 public class ItemObject {
 	@Id
 	private Number id;
-	private Number reqCollectId;
+	private Number collectId;
     private String title;
     private String link;
     @Field(type=FieldType.Text, analyzer="")
@@ -31,22 +31,18 @@ public class ItemObject {
      * 추후 방법을 찾아봐야함 
      * */
     private String base64;
-    /*
-    public ItemObject() {
-		//this.id=System.currentTimeMillis();
-	}
-    */
+    
     public Number getId() {
 		return id;
 	}
 	public void setId(Number id) {
 		this.id = id;
 	}
-	public Number getReqCollectId() {
-		return reqCollectId;
+	public Number getCollectId() {
+		return collectId;
 	}
-	public void setReqCollectId(Number reqCollectId) {
-		this.reqCollectId = reqCollectId;
+	public void setCollectId(Number collectId) {
+		this.collectId = collectId;
 	}
 	public final String getTitle() {
         return title;

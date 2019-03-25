@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cjahn.webcrawler.elasticsearch.repository.ReqCollectRepository;
-import com.cjahn.webcrawler.object.ReqCollect;
+import com.cjahn.webcrawler.object.CollectInfo;
 
 @Service
-public class ReqCollectESServiceImpl implements ReqCollectESService{
+public class CollectESServiceImpl implements CollectESService{
 	private ReqCollectRepository repository;
 	
 	@Autowired
@@ -18,13 +18,13 @@ public class ReqCollectESServiceImpl implements ReqCollectESService{
 	}
 	
 	@Override
-	public ReqCollect save(ReqCollect reqCollect) {
+	public CollectInfo save(CollectInfo collectInfo) {
 		//reqCollect.setId(System.currentTimeMillis());
-		return repository.save(reqCollect);
+		return repository.save(collectInfo);
 	}
 
 	@Override
-	public Optional<ReqCollect> findById(Long id) {
+	public Optional<CollectInfo> findById(Long id) {
 		return repository.findById(id);
 	}
 

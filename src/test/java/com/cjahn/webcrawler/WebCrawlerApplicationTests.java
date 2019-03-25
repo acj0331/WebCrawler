@@ -12,10 +12,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.cjahn.webcrawler.core.service.NaverCrawlerInterface;
-import com.cjahn.webcrawler.elasticsearch.service.ReqCollectESService;
+import com.cjahn.webcrawler.elasticsearch.service.CollectESService;
 import com.cjahn.webcrawler.elasticsearch.service.WebSummaryESService;
 import com.cjahn.webcrawler.object.ItemObject;
-import com.cjahn.webcrawler.object.ReqCollect;
+import com.cjahn.webcrawler.object.CollectInfo;
 import com.cjahn.webcrawler.service.WebCrawlerService;
 
 @RunWith(SpringRunner.class)
@@ -27,7 +27,7 @@ public class WebCrawlerApplicationTests {
     WebCrawlerService crawlerService;
 	//@Test
 	public void contextLoads() {
-	    ReqCollect req = new ReqCollect();
+	    CollectInfo collectInfo = new CollectInfo();
 	    
 	    ArrayList<String> webPortal = new ArrayList<>();
 	    ArrayList<String> keyword = new ArrayList<>();
@@ -36,31 +36,31 @@ public class WebCrawlerApplicationTests {
 	    
 	    keyword.add("gtec");
 	    keyword.add("경기과학기술대학교");
-	    req.setKeyWordList(keyword);
-	    req.setWebPortalList(webPortal);
+	    collectInfo.setKeyWordList(keyword);
+	    collectInfo.setWebPortalList(webPortal);
 	    
-	    crawlerService.doCollect(req);
+	    crawlerService.doCollect(collectInfo);
 	    
 	}
 
 	@Autowired
-	ReqCollectESService collectEsSvc;
+	CollectESService collectEsSvc;
 	@Autowired
 	NaverCrawlerInterface naverCrawler;
 	
 	@Test
 	public void naverCrawlerTest() throws Exception {
-	    ReqCollect req = new ReqCollect();
+	    CollectInfo collectInfo = new CollectInfo();
 	    
 	    ArrayList<String> keyword = new ArrayList<>();
 	    keyword.add("gtec");
 	    keyword.add("경기과학기술대학교");
-	    req.setKeyWordList(keyword);
+	    collectInfo.setKeyWordList(keyword);
 	    
 	    //req.setId(System.currentTimeMillis());
 	    //req.setCrawlerStatus("crawling");
-	    collectEsSvc.save(req);
-		naverCrawler.setReqCollect(req);
+	    collectEsSvc.save(collectInfo);
+		naverCrawler.setReqCollect(collectInfo);
 		naverCrawler.doCollect();
 		
 	}

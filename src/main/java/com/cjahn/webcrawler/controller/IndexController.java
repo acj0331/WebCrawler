@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.cjahn.webcrawler.object.ReqCollect;
+import com.cjahn.webcrawler.object.CollectInfo;
 import com.cjahn.webcrawler.service.WebCrawlerService;
 
 @Controller
@@ -20,19 +20,21 @@ public class IndexController {
     @RequestMapping(value="/", method=RequestMethod.GET)
     public String index(Model model){
         
-    	 ReqCollect req = new ReqCollect();
+    	 CollectInfo collectInfo = new CollectInfo();
  	    
  	    ArrayList<String> webPortal = new ArrayList<>();
  	    ArrayList<String> keyword = new ArrayList<>();
- 	    
+ 	    /*
+ 	     * TEST
+ 	     * */
  	    webPortal.add("naver");
  	    
  	    keyword.add("gtec");
  	    keyword.add("경기과학기술대학교");
- 	    req.setKeyWordList(keyword);
- 	    req.setWebPortalList(webPortal);
+ 	    collectInfo.setKeyWordList(keyword);
+ 	    collectInfo.setWebPortalList(webPortal);
  	    
- 	    crawlerService.doCollect(req);
+ 	    crawlerService.doCollect(collectInfo);
  	    
  	    
  	    

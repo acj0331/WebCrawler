@@ -5,15 +5,15 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.cjahn.webcrawler.elasticsearch.repository.ReqCollectRepository;
+import com.cjahn.webcrawler.elasticsearch.repository.CollectRepository;
 import com.cjahn.webcrawler.object.CollectInfo;
 
 @Service
 public class CollectESServiceImpl implements CollectESService{
-	private ReqCollectRepository repository;
+	private CollectRepository repository;
 	
 	@Autowired
-	public void setReqCollectRepository(ReqCollectRepository repository) {
+	public void setReqCollectRepository(CollectRepository repository) {
 		this.repository = repository;
 	}
 	
@@ -28,4 +28,11 @@ public class CollectESServiceImpl implements CollectESService{
 		return repository.findById(id);
 	}
 
+	@Override
+	public Iterable<CollectInfo> findAll() {
+		// TODO Auto-generated method stub
+		return repository.findAll();
+	}
+
+	
 }

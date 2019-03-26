@@ -102,6 +102,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                		 * */
 	                    	if(checker.getCrawlerStatus().equals("canceled")) {
 	                    		collectInfo.setCrawlerStatus("canceled");
+	                    		collectInfo.setEndDate(System.currentTimeMillis());
 	                            collectEsSvc.save(collectInfo);
 	                            checker.setStop(true);
 	                            checker.join();
@@ -126,7 +127,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                }
 	            }
 			}
-	    	
+	    	collectInfo.setEndDate(System.currentTimeMillis());
 	    	collectInfo.setCrawlerStatus("finished");
             collectEsSvc.save(collectInfo);
             checker.setStop(true);

@@ -2,9 +2,11 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title th:text=${pagename}></title>
 </head>
 <body>
-<h1 th:text=${pagename}></h1>
+<a href="/">메인페이지</a>
+<a href="/collect">데이터 수집</a>
+<a href="/analyse">데이터 분석</a>
 </body>
 </html>

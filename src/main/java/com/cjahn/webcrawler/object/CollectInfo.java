@@ -12,6 +12,7 @@ public class CollectInfo {
 	private List<String> webPortalList;
     private List<String> keyWordList;
     private String crawlerStatus;
+    private Long endDate;
 
     public CollectInfo() {
 		this.id=System.currentTimeMillis();
@@ -48,5 +49,13 @@ public class CollectInfo {
 
 	public void setCrawlerStatus(String crawlerStatus) {
 		this.crawlerStatus = crawlerStatus;
+	}
+
+	public Long getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Long endDate) {
+		this.endDate = endDate;
 	}
 }

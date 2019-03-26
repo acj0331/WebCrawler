@@ -8,4 +8,6 @@ public interface CollectESService {
 	public CollectInfo save(CollectInfo reqCollect);
 
 	Optional<CollectInfo> findById(Long id);
+
+	public Iterable<CollectInfo> findAll();
 }

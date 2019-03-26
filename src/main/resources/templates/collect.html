@@ -2,93 +2,69 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<script type="text/javascript" src="collect.js"></script>
-<link rel="stylesheet" href="css/collect.css" />
+<title th:text=${pagename}></title>
+<script src="js/jquery-1.12.4.js"></script>
+<script>
+	function millisecondsToDate(elem) {
+		var date = parseInt(elem.text());
+		date = new Date(date).toISOString();
+		elem.text(date);
+	}
+
+	$(document).ready(function() {
+		millisecondsToDate($(".startDate"));
+		millisecondsToDate($(".endDate"));
+	});
+</script>
+<style>
+table {
+	border: 1px solid #444444;
+	border-collapse: collapse;
+}
+
+th, td {
+	border: 1px solid #444444;
+	padding: 5px;
+}
+</style>
 </head>
 <body>
-<h1 th:text=${pagename}></h1>
-<div class="doCollectBtn">
-    데이터 수집
-</div>
+	<a href="/">메인페이지</a>
+	<a href="/collect">데이터 수집</a>
+	<a href="/analyse">데이터 분석</a>
 
-   <table>
-    <tr>
-    	<th>검색일시</th>
-    	<th>검색키워드</th>
-    	<th>검색상태</th>
-    	<th>검색종료일시</th>
-    	<th>관리</th>
-    </tr>
-    <tr>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    </tr>
-    <tr>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    </tr>
-    <tr>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    </tr>
-    <tr>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    </tr>
-    <tr>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    </tr>
-    <tr>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    </tr>
-    <tr>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    </tr>
-    <tr>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    </tr>
-    <tr>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    </tr>
-    <tr>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    	<td></td>
-    </tr>
-   </table>
+	<h1>데이터 수집목록</h1>
+	<form action="/collect">
+		<input type="date" name="startDate"/>&nbsp;~&nbsp;<input type="date" name="endDate"/>
+		<input type="submit" value="검색"/>
+	</form>
+	<br />
+	<table>
+		<tr>
+			<td>검색일시</td>
+			<td>키워드</td>
+			<td>검색상태</td>
+			<td>검색종료</td>
+			<td>관리</td>
+		</tr>
+		<tr th:each="collect : ${collectList}">
+			<td class="startDate" th:text="${collect.id}"></td>
+			<td class="keywords">
+				<span th:each="keywords : ${collect.keyWordList}"> 
+					<span th:text="${keywords}"></span>
+				</span>
+			</td>
+			<td class="status" th:switch="${collect.crawlerStatus}">
+				<p th:case="crawling">작업증</p>
+				<p th:case="canceled">취소</p>
+				<p th:case="finished">완료</p>
+			</td>
+			<td class="endDate" th:text="${collect.endDate}"></td>
+			<td>
+				<p th:if="${collect.crawlerStatus == 'crawling'}">중지</p>
+				<p th:unless="${collect.crawlerStatus == 'crawling'}">-</p>
+			</td>
+		</tr>
+	</table>
 </body>
 </html>

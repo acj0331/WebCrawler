@@ -2,32 +2,11 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Web Cralwer</title>
-<script src="js/jquery-1.12.4.js"></script>
-<script src="js/jquery-ui.js"></script>
-<link rel="stylesheet" href="css/jquery-ui.css" />
-<link rel="stylesheet" href="css/index.css" />
-<script type="text/javascript" src="js/index.js"></script>
+<title th:text=${pagename}></title>
 </head>
 <body>
-	<div class="body">
-		<div class="leftFrame">
-			<div class="menuBox">
-				<div id="collectBtn" class="menuBtn">
-					<p>
-						<span>데이터 수집</span>
-					</p>
-				</div>
-				<div id="analyseBtn" class="menuBtn">
-					<p>
-						<span>데이터 분석</span>
-					</p>
-				</div>
-			</div>
-		</div>
-		<div class="mainFrame">
-			<h1 th:text=${pagename}></h1>
-		</div>
-	</div>
+<a href="/">메인페이지</a>
+<a href="/collect">데이터 수집</a>
+<a href="/analyse">데이터 분석</a>
 </body>
 </html>

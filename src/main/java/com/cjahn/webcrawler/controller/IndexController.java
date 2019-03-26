@@ -27,14 +27,14 @@ public class IndexController {
  	    /*
  	     * TEST
  	     * */
- 	    webPortal.add("naver");
- 	    
- 	    keyword.add("gtec");
- 	    keyword.add("경기과학기술대학교");
- 	    collectInfo.setKeyWordList(keyword);
- 	    collectInfo.setWebPortalList(webPortal);
- 	    
- 	    crawlerService.doCollect(collectInfo);
+// 	    webPortal.add("naver");
+// 	    
+// 	    keyword.add("gtec");
+// 	    keyword.add("경기과학기술대학교");
+// 	    collectInfo.setKeyWordList(keyword);
+// 	    collectInfo.setWebPortalList(webPortal);
+// 	    
+// 	    crawlerService.doCollect(collectInfo);
  	    
  	    
  	    

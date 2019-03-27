@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
@@ -14,9 +18,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.cjahn.webcrawler.core.service.NaverCrawlerInterface;
 import com.cjahn.webcrawler.elasticsearch.service.CollectESService;
 import com.cjahn.webcrawler.elasticsearch.service.WebSummaryESService;
-import com.cjahn.webcrawler.object.ItemObject;
 import com.cjahn.webcrawler.object.CollectInfo;
+import com.cjahn.webcrawler.object.ItemObject;
 import com.cjahn.webcrawler.service.WebCrawlerService;
+import com.cjahn.webcrawler.utility.CrawlerUtil;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -48,7 +53,7 @@ public class WebCrawlerApplicationTests {
 	@Autowired
 	NaverCrawlerInterface naverCrawler;
 	
-	@Test
+//	@Test
 	public void naverCrawlerTest() throws Exception {
 	    CollectInfo collectInfo = new CollectInfo();
 	    
@@ -89,5 +94,30 @@ public class WebCrawlerApplicationTests {
 		System.out.println();
 		
 	}
+	
+	
+	@Test
+	public void testSelenium() {
+		WebDriver driver = CrawlerUtil.getSeleniumWebDriver();		
+		//naver blog
+		//TODO -> logic 간소화
+		driver.get("https://dimcobiz.blog.me/221358848111");
+		System.out.println(driver.getPageSource());
+		WebElement frame = null;
+		try {
+			frame = driver.findElement(By.xpath("//frame"));
+			driver.switchTo().frame(frame);
+
+			System.out.println(driver.getPageSource());	
+			frame = driver.findElement(By.xpath("//iframe"));
+			driver.switchTo().frame(frame);
+
+			System.out.println(driver.findElement(By.xpath("//body")).getText());	
+		} catch (NoSuchElementException e) {
+			// TODO: handle exception
+			
+		}
+	}
+	
 
 }

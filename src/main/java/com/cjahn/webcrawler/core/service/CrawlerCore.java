@@ -2,11 +2,14 @@ package com.cjahn.webcrawler.core.service;
 
 import java.util.LinkedHashMap;
 
+import org.openqa.selenium.WebDriver;
+
 import com.cjahn.webcrawler.object.CollectInfo;
 
 public class CrawlerCore extends Thread {
 	protected LinkedHashMap<String, Object> config;
 	protected CollectInfo collectInfo;
+	protected static WebDriver driver;
 	
 	public void setReqCollect(CollectInfo collectInfo) {
 		this.collectInfo = collectInfo;

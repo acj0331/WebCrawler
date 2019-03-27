@@ -53,7 +53,7 @@ public class WebCrawlerApplicationTests {
 	@Autowired
 	NaverCrawlerInterface naverCrawler;
 	
-//	@Test
+	@Test
 	public void naverCrawlerTest() throws Exception {
 	    CollectInfo collectInfo = new CollectInfo();
 	    
@@ -96,7 +96,7 @@ public class WebCrawlerApplicationTests {
 	}
 	
 	
-	@Test
+//	@Test
 	public void testSelenium() {
 		WebDriver driver = CrawlerUtil.getSeleniumWebDriver();		
 		//naver blog
@@ -117,6 +117,9 @@ public class WebCrawlerApplicationTests {
 			// TODO: handle exception
 			
 		}
+		
+		
+		driver.get("https://dimcobiz.blog.me/221358848111");
 	}
 	
 

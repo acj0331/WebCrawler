@@ -9,6 +9,9 @@ import javax.annotation.PostConstruct;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.UnhandledAlertException;
+import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -60,6 +63,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 		this.display = 10;
 		this.sort = "date";
 		
+		driver = CrawlerUtil.getSeleniumWebDriver();
 		jsonb = JsonbBuilder.create();
 	}
     
@@ -89,10 +93,14 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                String restResult = null;
 	                for (int start = 1; start <= 1000; start += this.display) {
 	                    NaverObject restObj = null;
-	                    if (apiType.equals("web")) 
-	                    	restResult = collectWeb(String.valueOf(apiURL), start);
-	                    else
-	                    	restResult = collectBlogAndNews(String.valueOf(apiURL), start);
+	                    try {
+		                    if (apiType.equals("web")) 
+		                    	restResult = collectWeb(String.valueOf(apiURL), start);
+		                    else
+		                    	restResult = collectBlogAndNews(String.valueOf(apiURL), start);	
+						} catch (Exception e) {
+							continue;
+						}
 	                    
 	                    
 	                    restObj = jsonb.fromJson(restResult, NaverObject.class);  
@@ -117,6 +125,30 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                    	item.setCollectId(collectInfo.getId());
 	                    	item.setKeyWord(keyword);
 	                    	item.setType(apiType);
+	                    	
+	                    	/*
+	                    	 * Crawling core
+	                    	 * */
+	                    	String htmlText = null;
+	                    	WebElement frame = null;
+	                    	try {
+		                    	driver.get(item.getLink());
+		                    	if(driver.getPageSource().indexOf("blog.naver")!=-1) {
+			                    	if(driver.getPageSource().indexOf("frame")>0){
+			                    		frame = driver.findElement(By.xpath("//frame"));
+			                			driver.switchTo().frame(frame);
+			                    	}
+			                    	if(driver.getPageSource().indexOf("iframe")>0){
+			                    		frame = driver.findElement(By.xpath("//iframe"));
+			                			driver.switchTo().frame(frame);	
+			                    	}	
+		                    	}
+		                    	htmlText = driver.findElement(By.xpath("//body")).getText();	                    		
+							} catch (Exception e) {
+								htmlText = "";
+							}
+	                    	
+	                    	item.setHtmlText(htmlText);
 	                    	
 	                        webItemEsSvc.save(item);
 	                    }

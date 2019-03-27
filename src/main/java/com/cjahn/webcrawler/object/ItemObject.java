@@ -3,7 +3,6 @@ package com.cjahn.webcrawler.object;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -25,7 +24,7 @@ public class ItemObject {
     private String description;
     private String keyWord;
     private String type;
-    
+    private String htmlText;
     /*
      * elasticsearch에서 url format 검색이 안되므로 base64 encoding 하여 저장.
      * 추후 방법을 찾아봐야함 
@@ -72,8 +71,17 @@ public class ItemObject {
 	public String getType() {
 		return type;
 	}
+	/**
+	 * @param type
+	 */
 	public void setType(String type) {
 		this.type = type;
+	}
+	public String getHtmlText() {
+		return htmlText;
+	}
+	public void setHtmlText(String htmlText) {
+		this.htmlText = htmlText;
 	}
 	public String getBase64() {		
 		return base64;

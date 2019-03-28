@@ -10,9 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -50,6 +48,17 @@ public class CrawlerUtil {
 		}
 		
 		return driver;
+	}
+	
+	public static boolean elementExist(WebDriver driver, String id) {
+		try {
+			driver.findElement(By.id(id));
+		} catch (Exception e) {
+			// TODO: handle exception
+			return false;
+		}
+		
+		return true;
 	}
 	
 	

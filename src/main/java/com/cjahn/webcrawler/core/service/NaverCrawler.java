@@ -9,9 +9,12 @@ import javax.annotation.PostConstruct;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
-import org.openqa.selenium.UnhandledAlertException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -130,26 +133,61 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                    	 * Crawling core
 	                    	 * */
 	                    	String htmlText = null;
-	                    	WebElement frame = null;
 	                    	try {
 		                    	driver.get(item.getLink());
-		                    	if(driver.getPageSource().indexOf("blog.naver")!=-1) {
-			                    	if(driver.getPageSource().indexOf("frame")>0){
-			                    		frame = driver.findElement(By.xpath("//frame"));
-			                			driver.switchTo().frame(frame);
-			                    	}
-			                    	if(driver.getPageSource().indexOf("iframe")>0){
-			                    		frame = driver.findElement(By.xpath("//iframe"));
-			                			driver.switchTo().frame(frame);	
-			                    	}	
-		                    	}
-		                    	htmlText = driver.findElement(By.xpath("//body")).getText();	                    		
-							} catch (Exception e) {
-								htmlText = "";
+		                    	Alert alt = driver.switchTo().alert();
+		            			if(alt!=null) 
+		            				alt.dismiss();
+	                    	} catch (Exception e) {
+								//alert 미발견시 exception 발생
 							}
+		                    
+	                    	//naver blog data일 경우 mainframe을 찾아야함
+
+                    		WebElement frame = null;
+	                    	do {
+	                    		frame = null;
+	                    		if(CrawlerUtil.elementExist(driver, "mainFrame")) {
+	            					frame = driver.findElement(By.id("mainFrame"));
+	            				}
+	            				else if(CrawlerUtil.elementExist(driver, "screenFrame")) {
+	            					frame = driver.findElement(By.id("screenFrame"));
+	            				}
+	            				if(frame!=null)
+	            					driver.switchTo().frame(frame);	
+	            				
+							} while (frame!=null);
+	                    	
+	                    	if(apiType.equals("blog")) {
+	                    		
+	                    		/*
+	                    		 * naver blog postListBody 로딩이 느려 10초안에 postListBody를 다운받도록 한다.
+	                    		 * */
+	                    		WebDriverWait wait = new WebDriverWait(driver, 10);
+	                    		try {
+	                    			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("postListBody")));
+								} catch (TimeoutException e) {
+									// TODO: handle exception
+								}
+	                    		try {
+	                    			htmlText = driver.findElement(By.id("postListBody")).getText();
+								} catch (Exception e) {
+									htmlText = null;
+								}
+	                    	}
+	                    	
+	                    	
+	                    	
+	                    	if(htmlText==null) {
+	                    		try {
+		                    		htmlText = driver.findElement(By.tagName("body")).getText();
+								} catch (Exception e) {
+									htmlText = "";
+								}
+	                    	}
+	                    	
 	                    	
 	                    	item.setHtmlText(htmlText);
-	                    	
 	                        webItemEsSvc.save(item);
 	                    }
 	                    

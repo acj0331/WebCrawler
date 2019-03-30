@@ -2,19 +2,27 @@ package com.cjahn.webcrawler.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cjahn.webcrawler.config.OpenAPIConfig;
 import com.cjahn.webcrawler.elasticsearch.service.CollectESService;
 import com.cjahn.webcrawler.object.CollectInfo;
+import com.cjahn.webcrawler.service.WebCrawlerService;
 
 @Controller
 public class CollectController {
+	@Autowired
+	WebCrawlerService crawlerService;
+	@Autowired
+	OpenAPIConfig apiConfig;
 	@Autowired
 	CollectESService collectSvc;
 	
@@ -38,13 +46,49 @@ public class CollectController {
         return "collect";
     }
     
-    @RequestMapping(value="/doCollect", method=RequestMethod.GET)
-    public String doCollect(Model model) {
-        model.addAttribute("pagename", "doCollect");
+    @RequestMapping(value="/cancel", method=RequestMethod.GET)
+    public String cancel(
+    		@RequestParam(value="id", required=false) String id,
+    		Model model) {
+    	Optional<CollectInfo> collect = collectSvc.findById(Long.parseLong(id));
+    	if(collect.isEmpty())
+    		return "collect";
+    	
+    	CollectInfo info = collect.get();
+    	info.setCrawlerStatus("canceled");
+    	collectSvc.save(info);
+    	
+    	
+        return "collect";
+    }
 
-        /*
-         * page name
-         * */
-        return "doCollect";
+    @RequestMapping(value="/collect_info", method=RequestMethod.POST)
+    public String startCollect(@RequestBody CollectInfo collect) {
+    	crawlerService.doCollect(collect);
+    	return "collect_info";	
+	}
+
+    @RequestMapping(value="/collect_info", method=RequestMethod.GET)
+    public String collect_info(
+    		@RequestParam(value="id", required=false) String id,
+    		Model model) {
+    	List<String> webPortalList = new ArrayList<String>();
+    	for(String webPortal : apiConfig.getOpenapis().keySet()) {
+    		webPortalList.add(webPortal);
+    	}
+    	
+        model.addAttribute("pagename", "collect_info");
+        model.addAttribute("apiConfig", apiConfig.getOpenapis());
+        
+        if(id!=null) {
+        	Optional<CollectInfo> collect = collectSvc.findById(Long.parseLong(id));
+        	if(collect.isEmpty())
+        		return "collect";
+        	
+        	CollectInfo info = collect.get();
+            model.addAttribute("collect_info", info);        	
+        }
+        
+        return "collect_info";
     }
 }

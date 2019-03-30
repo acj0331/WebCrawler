@@ -1,5 +1,6 @@
 openapis: 
   naver: 
+    name: 네이버
     limit: 25000
     urls: 
       blog: https://openapi.naver.com/v1/search/blog.json
@@ -8,6 +9,7 @@ openapis:
     client-id: LVS8txbm57fRHlZCzW7L
     client-secret: DXoSIRxvIf
   kakao: 
+    name: 다음(카카오)
     restapi-key: 7ab961ab5c0afe56157553d6b25fdb0d
     urls: 
       web: https://dapi.kakao.com/v2/search/web

@@ -7,25 +7,60 @@
 <script>
 	function millisecondsToDate(elem) {
 		var date = parseInt(elem.text());
-		date = new Date(date).toISOString();
-		elem.text(date);
+		if(!isNaN(date)){
+			date = new Date(date).toISOString();
+			elem.text(date);
+		}
+	}
+	
+	function cancelCrawling(element){
+		var conf = confirm("취소하시겠습니까?");
+		if(conf==false)
+			return;
+		var id = $(element).parent().parent().parent().find(".startDate").attr("id");
+		$.ajax({
+    		url: "/cancel?id="+id,
+    		type: "GET",
+    		success : function(){
+    			alert("취소되었습니다.");
+    			location.reload();
+    		}
+    	});
+		
 	}
 
 	$(document).ready(function() {
-		millisecondsToDate($(".startDate"));
-		millisecondsToDate($(".endDate"));
+		
+		$(".startDate, .endDate").each(function(){
+			millisecondsToDate($(this));	
+		});
+		
+		$(".startDate, .keywords, .status, .endDate").click(function(){
+			var id =$(this).parent().find(".startDate").attr("id");
+			document.location.href='/collect_info?id='+id;
+		});
+		
+		
+		
+		
 	});
 </script>
 <style>
-table {
-	border: 1px solid #444444;
-	border-collapse: collapse;
-}
-
-th, td {
-	border: 1px solid #444444;
-	padding: 5px;
-}
+	table {
+		border: 1px solid #444444;
+		border-collapse: collapse;
+	}
+	
+	th, td {
+		border: 1px solid #444444;
+		padding: 5px;
+	}
+	tbody>tr:hover {
+	    background-color: #cbcbff;
+	}
+	.startDate, .keywords, .status, .endDate{
+		cursor: pointer;
+	}
 </style>
 </head>
 <body>
@@ -39,32 +74,40 @@ th, td {
 		<input type="submit" value="검색"/>
 	</form>
 	<br />
+	<button onclick="document.location.href='/collect_info'">생성</button>
+	
+	<br />
 	<table>
-		<tr>
-			<td>검색일시</td>
-			<td>키워드</td>
-			<td>검색상태</td>
-			<td>검색종료</td>
-			<td>관리</td>
-		</tr>
-		<tr th:each="collect : ${collectList}">
-			<td class="startDate" th:text="${collect.id}"></td>
-			<td class="keywords">
-				<span th:each="keywords : ${collect.keyWordList}"> 
-					<span th:text="${keywords}"></span>
-				</span>
-			</td>
-			<td class="status" th:switch="${collect.crawlerStatus}">
-				<p th:case="crawling">작업증</p>
-				<p th:case="canceled">취소</p>
-				<p th:case="finished">완료</p>
-			</td>
-			<td class="endDate" th:text="${collect.endDate}"></td>
-			<td>
-				<p th:if="${collect.crawlerStatus == 'crawling'}">중지</p>
-				<p th:unless="${collect.crawlerStatus == 'crawling'}">-</p>
-			</td>
-		</tr>
+		<thead>
+			<tr>
+				<td>검색일시</td>
+				<td>키워드</td>
+				<td>검색상태</td>
+				<td>검색종료</td>
+				<td>관리</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="collect : ${collectList}">
+				<td class="startDate" th:attr="id=${collect.id}" th:text="${collect.id}"></td>
+				<td class="keywords">
+					<span th:each="keywords : ${collect.keyWordList}"> 
+						<span th:text="${keywords}"></span>
+					</span>
+				</td>
+				<td class="status" th:switch="${collect.crawlerStatus}">
+					<p th:case="crawling">작업중</p>
+					<p th:case="canceled">취소</p>
+					<p th:case="finished">완료</p>
+				</td>
+				<td class="endDate" th:text="${collect.endDate}"></td>
+				<td>
+					<p th:if="${collect.crawlerStatus == 'crawling'}"><button onclick="cancelCrawling(this)">중지</button></p>
+					<p th:unless="${collect.crawlerStatus == 'crawling'}">-</p>
+				</td>
+			</tr>
+		</tbody>
+		
 	</table>
 </body>
 </html>

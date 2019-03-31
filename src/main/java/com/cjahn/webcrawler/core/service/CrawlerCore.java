@@ -9,7 +9,7 @@ import com.cjahn.webcrawler.object.CollectInfo;
 public class CrawlerCore extends Thread {
 	protected LinkedHashMap<String, Object> config;
 	protected CollectInfo collectInfo;
-	protected static WebDriver driver;
+	protected WebDriver driver;
 	
 	public void setReqCollect(CollectInfo collectInfo) {
 		this.collectInfo = collectInfo;

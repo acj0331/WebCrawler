@@ -56,6 +56,7 @@ public class CollectController {
     	
     	CollectInfo info = collect.get();
     	info.setCrawlerStatus("canceled");
+    	info.setEndDate(System.currentTimeMillis());
     	collectSvc.save(info);
     	
     	

@@ -66,7 +66,6 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 		this.display = 10;
 		this.sort = "date";
 		
-		driver = CrawlerUtil.getSeleniumWebDriver();
 		jsonb = JsonbBuilder.create();
 	}
     
@@ -78,7 +77,8 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 
     @Override
     public void doCollect() {
-    	CrawlerChecker checker = new CrawlerChecker()	;
+		driver = CrawlerUtil.getSeleniumWebDriver();
+    	CrawlerChecker checker = new CrawlerChecker();
     	checker.setCollectEsSvc(collectEsSvc);
     	checker.setCollectInfo(collectInfo);
     	checker.start();
@@ -112,11 +112,9 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                		 * 크롤링 중간에 취소할 경우 
 	                		 * */
 	                    	if(checker.getCrawlerStatus().equals("canceled")) {
-	                    		collectInfo.setCrawlerStatus("canceled");
-	                    		collectInfo.setEndDate(System.currentTimeMillis());
-	                            collectEsSvc.save(collectInfo);
 	                            checker.setStop(true);
 	                            checker.join();
+	                            driver.close();
 	                    		return;
 	                    	}
 	                    	
@@ -143,48 +141,42 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 							}
 		                    
 	                    	//naver blog data일 경우 mainframe을 찾아야함
-
-                    		WebElement frame = null;
-	                    	do {
-	                    		frame = null;
-	                    		if(CrawlerUtil.elementExist(driver, "mainFrame")) {
-	            					frame = driver.findElement(By.id("mainFrame"));
-	            				}
-	            				else if(CrawlerUtil.elementExist(driver, "screenFrame")) {
-	            					frame = driver.findElement(By.id("screenFrame"));
-	            				}
-	            				if(frame!=null)
-	            					driver.switchTo().frame(frame);	
-	            				
-							} while (frame!=null);
-	                    	
-	                    	if(apiType.equals("blog")) {
-	                    		
-	                    		/*
-	                    		 * naver blog postListBody 로딩이 느려 10초안에 postListBody를 다운받도록 한다.
-	                    		 * */
-	                    		WebDriverWait wait = new WebDriverWait(driver, 10);
-	                    		try {
-	                    			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("postListBody")));
-								} catch (TimeoutException e) {
-									// TODO: handle exception
-								}
-	                    		try {
+							try {
+								WebElement frame = null;
+		                    	do {
+		                    		frame = null;
+		                    		if(CrawlerUtil.elementExist(driver, "mainFrame")) {
+		            					frame = driver.findElement(By.id("mainFrame"));
+		            				}
+		            				else if(CrawlerUtil.elementExist(driver, "screenFrame")) {
+		            					frame = driver.findElement(By.id("screenFrame"));
+		            				}
+		            				if(frame!=null)
+		            					driver.switchTo().frame(frame);	
+		            				
+								} while (frame!=null);
+		                    	
+		                    	if(apiType.equals("blog")) {
+		                    		/*
+		                    		 * naver blog postListBody 로딩이 느려 10초안에 postListBody를 다운받도록 한다.
+		                    		 * */
+		                    		WebDriverWait wait = new WebDriverWait(driver, 10);
+		                    		try {
+		                    			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("postListBody")));
+									} catch (TimeoutException e) {
+										// TODO: handle exception
+									}
 	                    			htmlText = driver.findElement(By.id("postListBody")).getText();
-								} catch (Exception e) {
-									htmlText = null;
-								}
-	                    	}
-	                    	
-	                    	
-	                    	
-	                    	if(htmlText==null) {
-	                    		try {
+		                    	}
+		                    	
+		                    	if(htmlText==null) {
 		                    		htmlText = driver.findElement(By.tagName("body")).getText();
-								} catch (Exception e) {
-									htmlText = "";
-								}
-	                    	}
+		                    	}	
+							} catch (Exception e) {
+								// TODO: handle exception
+								htmlText = "";
+							}
+                    		
 	                    	
 	                    	
 	                    	item.setHtmlText(htmlText);
@@ -202,6 +194,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
             collectEsSvc.save(collectInfo);
             checker.setStop(true);
             checker.join();
+            driver.close();
     	 } catch (Exception e) {
              e.printStackTrace();
          }

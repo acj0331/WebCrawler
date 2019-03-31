@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 public class CrawlerUtil {
 	private static String OS = System.getProperty("os.name").toLowerCase();
-	private static WebDriver driver;
 
 	public static boolean isWindows() {
 		return (OS.indexOf("win") >= 0);
@@ -36,16 +35,15 @@ public class CrawlerUtil {
 	}
 
 	public static WebDriver getSeleniumWebDriver() {
-		if (driver == null) {
-			if (isWindows())
-				System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver.exe");	//chrome : webdriver.chrome.driver
-			else
-				System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver");
-			
-			FirefoxOptions options = new FirefoxOptions();
+		WebDriver driver = null;
+		if (isWindows())
+			System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver.exe");	//chrome : webdriver.chrome.driver
+		else
+			System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver");
+		
+		FirefoxOptions options = new FirefoxOptions();
 //			options.setHeadless(true);
-			driver = new FirefoxDriver(options);
-		}
+		driver = new FirefoxDriver(options);
 		
 		return driver;
 	}

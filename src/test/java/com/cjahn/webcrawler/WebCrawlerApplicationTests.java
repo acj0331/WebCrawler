@@ -1,9 +1,13 @@
 package com.cjahn.webcrawler;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.Alert;
@@ -15,6 +19,10 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.cjahn.webcrawler.core.service.NaverCrawlerInterface;
@@ -32,7 +40,7 @@ public class WebCrawlerApplicationTests {
 	@Autowired
 	NaverCrawlerInterface naverCrawler;
 	
-	@Test
+	//@Test
 	public void naverCrawlerTest() throws Exception {
 	    CollectInfo collectInfo = new CollectInfo();
 	    
@@ -123,5 +131,77 @@ public class WebCrawlerApplicationTests {
 		driver.close();
 	}
 	
+	@Autowired
+	private ElasticsearchTemplate elasticsearchTemplate;
+	
+	//@Test
+	public void elasticsearchQueryTestCount() {
+		SearchQuery searchQuery = new NativeSearchQueryBuilder()
+				.withQuery(matchAllQuery())
+				.withIndices("web_items")
+				.withTypes("web_item")
+				.build();
+		
+		long count = elasticsearchTemplate.count(searchQuery,ItemObject.class);
+		System.out.println(count);
+	}
+	
+	//@Test
+	public void elasticsearchQueryList() {
+		SearchQuery searchQuery = new NativeSearchQueryBuilder()
+				.withQuery(matchAllQuery())
+				.withIndices("web_items")
+				.withTypes("web_item")
+				.withSort(new FieldSortBuilder("id").order(SortOrder.DESC))
+				.build();
+		List<ItemObject> items = elasticsearchTemplate.queryForList(searchQuery, ItemObject.class);
+		System.out.println(items.size());
+		for (int i = 0; i < items.size(); i++) {
+			System.out.println(items.get(i).getId());
+		}
+	}
+	
+	
+	//@Test
+	public void elasticsearchQueryList2() {
+		SearchQuery searchQuery = new NativeSearchQueryBuilder()
+				.withQuery(matchAllQuery())
+				.withIndices("web_items")
+				.withTypes("web_item")
+				.build();
+		
+		long count = elasticsearchTemplate.count(searchQuery,ItemObject.class);
+		long maxPage = count/10;
+		
+		int cnt = 0;
+		for (int i = 0; i <= maxPage; i++) {
+			searchQuery = new NativeSearchQueryBuilder().withIndices("web_items")
+				      .withTypes("web_item").withQuery(matchAllQuery())
+				      .withSort(new FieldSortBuilder("id").order(SortOrder.DESC))
+				      .withPageable(PageRequest.of(i, 10)).build();
+			
+			List<ItemObject> items = elasticsearchTemplate.queryForList(searchQuery, ItemObject.class);
+			cnt+=items.size();
+			//System.out.println(items.size());
+			for (int j = 0; j < items.size(); j++) {
+				//System.out.println(j+"\t"+items.get(j).getId());
+			}	
+		}
+		//System.out.println(cnt);
+	}
 
+	@Test
+	public void elasticsearchQueryList3() {
+		SearchQuery searchQuery = new NativeSearchQueryBuilder()
+				.withIndices("web_items")
+			      .withTypes("web_item")
+//			      .withQuery(matchAllQuery())
+//			      .withSort(new FieldSortBuilder("id").order(SortOrder.DESC))
+			      .withQuery(matchQuery("base64", "aHR0cHM6Ly9ibG9nLm5hdmVyLmNvbS9odWFuaT9SZWRpcmVjdD1Mb2cmYW1wO2xvZ05vPTIyMTUwMTI4NjMzNg"))
+			      .withPageable(PageRequest.of(0, 10)).build();
+		
+		List<ItemObject> items = elasticsearchTemplate.queryForList(searchQuery, ItemObject.class);
+		System.out.println(items.size());
+	}
+	
 }

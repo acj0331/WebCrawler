@@ -190,7 +190,7 @@ public class WebCrawlerApplicationTests {
 		//System.out.println(cnt);
 	}
 
-	//@Test
+	@Test
 	public void elasticsearchQueryList3() {
 		SearchQuery searchQuery = new NativeSearchQueryBuilder()
 				.withIndices("web_items")

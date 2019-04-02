@@ -16,14 +16,8 @@ public class KakaoCrawler extends CrawlerCore  implements KakoCrawlerInterface{
 	
 	
 	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		super.run();
-	}
-	
-	@Override
 	public void doCollect() throws Exception {
 		// TODO Auto-generated method stub
-		super.doCollect();
+		System.out.println("kakao crawler not developed!!!!!!!!!!!!!!!!!!!!");
 	}
 }

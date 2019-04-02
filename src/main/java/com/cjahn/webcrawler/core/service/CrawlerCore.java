@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 
 import com.cjahn.webcrawler.object.CollectInfo;
 
-public class CrawlerCore extends Thread {
+public class CrawlerCore {
 	protected LinkedHashMap<String, Object> config;
 	protected CollectInfo collectInfo;
 //	protected WebDriver driver;

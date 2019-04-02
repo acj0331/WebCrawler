@@ -114,7 +114,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                    	if(checker.getCrawlerStatus().equals("canceled")) {
 	                            checker.setStop(true);
 	                            checker.join();
-	                            driver.close();
+	                            //driver.close();
 	                            driver.quit();
 	                    		return;
 	                    	}
@@ -159,9 +159,9 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 		                    	
 		                    	if(apiType.equals("blog")) {
 		                    		/*
-		                    		 * naver blog postListBody 로딩이 느려 10초안에 postListBody를 다운받도록 한다.
+		                    		 * naver blog postListBody 로딩이 느려 3초안에 postListBody를 다운받도록 한다.
 		                    		 * */
-		                    		WebDriverWait wait = new WebDriverWait(driver, 10);
+		                    		WebDriverWait wait = new WebDriverWait(driver, 3);
 	                    			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("postListBody")));
 	                    			htmlText = driver.findElement(By.id("postListBody")).getText();
 		                    	}
@@ -190,7 +190,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
             collectEsSvc.save(collectInfo);
             checker.setStop(true);
             checker.join();
-            driver.close();
+            //driver.close();
             driver.quit();
     	 } catch (Exception e) {
              e.printStackTrace();

@@ -11,7 +11,7 @@ import javax.json.bind.JsonbBuilder;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -64,7 +64,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 		this.httpHeader.put("X-Naver-Client-Secret", (String) this.config.get("client-secret"));
 		
 		this.display = 10;
-		this.sort = "date";
+		this.sort = "sim";//sim : 유사도 / date : 최근일
 		
 		jsonb = JsonbBuilder.create();
 	}
@@ -77,7 +77,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 
     @Override
     public void doCollect() {
-		driver = CrawlerUtil.getSeleniumWebDriver();
+    	WebDriver driver = CrawlerUtil.getSeleniumWebDriver();
     	CrawlerChecker checker = new CrawlerChecker();
     	checker.setCollectEsSvc(collectEsSvc);
     	checker.setCollectInfo(collectInfo);
@@ -115,6 +115,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                            checker.setStop(true);
 	                            checker.join();
 	                            driver.close();
+	                            driver.quit();
 	                    		return;
 	                    	}
 	                    	
@@ -161,11 +162,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 		                    		 * naver blog postListBody 로딩이 느려 10초안에 postListBody를 다운받도록 한다.
 		                    		 * */
 		                    		WebDriverWait wait = new WebDriverWait(driver, 10);
-		                    		try {
-		                    			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("postListBody")));
-									} catch (TimeoutException e) {
-										// TODO: handle exception
-									}
+	                    			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("postListBody")));
 	                    			htmlText = driver.findElement(By.id("postListBody")).getText();
 		                    	}
 		                    	
@@ -173,7 +170,6 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 		                    		htmlText = driver.findElement(By.tagName("body")).getText();
 		                    	}	
 							} catch (Exception e) {
-								// TODO: handle exception
 								htmlText = "";
 							}
                     		
@@ -195,6 +191,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
             checker.setStop(true);
             checker.join();
             driver.close();
+            driver.quit();
     	 } catch (Exception e) {
              e.printStackTrace();
          }

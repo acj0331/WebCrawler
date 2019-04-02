@@ -1,19 +1,26 @@
 package com.cjahn.webcrawler.elasticsearch.service;
 
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 
 import com.cjahn.webcrawler.elasticsearch.repository.WebSummaryRepository;
+import com.cjahn.webcrawler.object.CollectInfo;
 import com.cjahn.webcrawler.object.ItemObject;
 
 @Service
 public class WebSummaryESServiceImpl implements WebSummaryESService{
-	
     private WebSummaryRepository repository;
+	@Autowired
+	private ElasticsearchTemplate esTemplate;
     
     @Autowired
     public void setWebSummaryRepository(WebSummaryRepository repository){
@@ -61,6 +68,17 @@ public class WebSummaryESServiceImpl implements WebSummaryESService{
 	public Optional<ItemObject> findByBase64(String base64) {
 		// TODO Auto-generated method stub
 		return repository.findByBase64(base64);
+	}
+
+	@Override
+	public Long getTotalCount(Long id) {
+		// TODO Auto-generated method stub
+		SearchQuery searchQuery = new NativeSearchQueryBuilder()
+				.withQuery(matchQuery("collectId", id))
+				.withIndices("web_items")
+				.withTypes("web_item")
+				.build();
+		return esTemplate.count(searchQuery,CollectInfo.class);
 	}
     
     

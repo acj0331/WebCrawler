@@ -1,7 +1,6 @@
 package com.cjahn.webcrawler.elasticsearch.repository;
 
-import java.util.Optional;
-
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 import com.cjahn.webcrawler.object.CollectInfo;

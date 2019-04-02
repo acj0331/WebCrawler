@@ -42,7 +42,7 @@ public class CrawlerUtil {
 			System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver");
 		
 		FirefoxOptions options = new FirefoxOptions();
-//			options.setHeadless(true);
+		options.setHeadless(true);
 		driver = new FirefoxDriver(options);
 		
 		return driver;

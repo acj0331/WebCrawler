@@ -46,11 +46,13 @@ public class CollectController {
 		}
     	pg--;
     	
-    	collectList = collectSvc.findAllSortById(pg, row);
-    	collectList.forEach(collect->{
-    		collect.setCollectCount(webitemSvc.getTotalCount(collect.getId()));
-    		
-    	});
+    	Long total = collectSvc.getTotalCount();
+    	if(total!=0) {
+    		collectList = collectSvc.findAllSortById(pg, row);
+    		collectList.forEach(collect->{
+    			collect.setCollectCount(webitemSvc.getTotalCount(collect.getId()));
+    		});
+    	}
     	model.addAttribute("row", row);
     	model.addAttribute("total", collectSvc.getTotalCount());
     	model.addAttribute("collectList", collectList);

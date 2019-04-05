@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 @Document(indexName="collects", type="collect")
+
 public class CollectInfo {
 	@Id
 	private Long id;

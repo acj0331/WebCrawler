@@ -1,9 +1,12 @@
 package com.cjahn.webcrawler.core.service;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.json.bind.Jsonb;
@@ -13,6 +16,8 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +32,7 @@ import com.cjahn.webcrawler.object.ItemObject;
 import com.cjahn.webcrawler.object.NaverObject;
 import com.cjahn.webcrawler.utility.CrawlerChecker;
 import com.cjahn.webcrawler.utility.CrawlerUtil;
+import com.cjahn.webcrawler.utility.DriverFactory;
 
 
 @Service
@@ -77,7 +83,23 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 
     @Override
     public void doCollect() {
+//    	WebDriver driver = DriverFactory.getInstance().getDriver();
     	WebDriver driver = CrawlerUtil.getSeleniumWebDriver();
+    	
+    	/*
+    	DesiredCapabilities capability = DesiredCapabilities.firefox();
+    	capability.setBrowserName("firefox");  
+    	capability.setVersion("3.6");
+    	
+    	WebDriver driver = null;
+		try {
+			driver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), capability);
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		*/
+    	
     	CrawlerChecker checker = new CrawlerChecker();
     	checker.setCollectEsSvc(collectEsSvc);
     	checker.setCollectInfo(collectInfo);
@@ -114,20 +136,27 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                    	if(checker.getCrawlerStatus().equals("canceled")) {
 	                            checker.setStop(true);
 	                            checker.join();
-	                            //driver.close();
-	                            driver.quit();
+	                            driver.close();
+	                            //DriverFactory.getInstance().removeDriver();
+
 	                    		return;
 	                    	}
 	                    	
 	                        //save data
 	                    	ItemObject item =restObj.getItems().get(j);
-	                    	/*
-	                    	 * relation info
-	                    	 * */
 	                    	item.setCollectId(collectInfo.getId());
 	                    	item.setKeyWord(keyword);
 	                    	item.setType(apiType);
 	                    	
+	                    	
+	                    	
+	                    	Optional<ItemObject> temp = webItemEsSvc.findByBase64(item.getBase64());
+	                    	if(!temp.isEmpty()) {
+	                    		ItemObject duplicateItem = temp.get();
+	                    		duplicateItem.setCollectId(item.getCollectId());
+	                    		webItemEsSvc.save(duplicateItem);
+	                    		continue;
+	                    	}
 	                    	/*
 	                    	 * Crawling core
 	                    	 * */
@@ -190,8 +219,9 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
             collectEsSvc.save(collectInfo);
             checker.setStop(true);
             checker.join();
-            //driver.close();
-            driver.quit();
+            driver.close();
+            //DriverFactory.getInstance().removeDriver();
+
     	 } catch (Exception e) {
              e.printStackTrace();
          }

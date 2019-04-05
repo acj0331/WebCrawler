@@ -29,10 +29,10 @@ public class WebSummaryESServiceImpl implements WebSummaryESService{
     
     @Override
     public ItemObject save(ItemObject item) {
-    	Optional<ItemObject> obj = this.findByBase64(item.getBase64());
-    	if(!obj.isEmpty()) {
-    		return null;
-    	}
+//    	Optional<ItemObject> obj = this.findByBase64(item.getBase64());
+//    	if(!obj.isEmpty()) {
+//    		return null;
+//    	}
     	
     	//PageImpl<ItemObject> tes = (PageImpl<ItemObject>) this.findAll();
 		item.setId(System.currentTimeMillis());

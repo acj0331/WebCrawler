@@ -1,11 +1,18 @@
+spring:
+  elasticsearch:
+    cluster-name: docker-cluster
+    host: localhost
+    port: 9300
+  aop:
+    proxy-target-class: false
 openapis: 
   naver: 
     name: 네이버
     limit: 25000
     urls: 
-      blog: https://openapi.naver.com/v1/search/blog.json
-      news: https://openapi.naver.com/v1/search/news.json
       web: https://openapi.naver.com/v1/search/webkr.json
+      news: https://openapi.naver.com/v1/search/news.json
+      blog: https://openapi.naver.com/v1/search/blog.json
     client-id: LVS8txbm57fRHlZCzW7L
     client-secret: DXoSIRxvIf
   kakao: 

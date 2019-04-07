@@ -1,7 +1,5 @@
 package com.cjahn.webcrawler.core.service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,10 +12,9 @@ import javax.json.bind.JsonbBuilder;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +29,6 @@ import com.cjahn.webcrawler.object.ItemObject;
 import com.cjahn.webcrawler.object.NaverObject;
 import com.cjahn.webcrawler.utility.CrawlerChecker;
 import com.cjahn.webcrawler.utility.CrawlerUtil;
-import com.cjahn.webcrawler.utility.DriverFactory;
 
 
 @Service
@@ -52,12 +48,13 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
     private int display;
     private String sort;
     private Jsonb jsonb;
+    
+	private final String[] searchClasses = {".se-main-container", ".sect_dsc", "#postViewArea"};
 
     /*
      * TODO : api limit 제어(하루에 25000개)
      * */
     private int limit;
-
     
     @SuppressWarnings("unchecked")
 	@PostConstruct	
@@ -71,9 +68,13 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 		
 		this.display = 10;
 		this.sort = "sim";//sim : 유사도 / date : 최근일
-		
 		jsonb = JsonbBuilder.create();
+		
 	}
+    
+    @Override
+    protected void finalize() throws Throwable {
+    }
     
     @Override
     @Async("WebCrawlingExecutor")
@@ -83,23 +84,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 
     @Override
     public void doCollect() {
-//    	WebDriver driver = DriverFactory.getInstance().getDriver();
     	WebDriver driver = CrawlerUtil.getSeleniumWebDriver();
-    	
-    	/*
-    	DesiredCapabilities capability = DesiredCapabilities.firefox();
-    	capability.setBrowserName("firefox");  
-    	capability.setVersion("3.6");
-    	
-    	WebDriver driver = null;
-		try {
-			driver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), capability);
-		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		*/
-    	
     	CrawlerChecker checker = new CrawlerChecker();
     	checker.setCollectEsSvc(collectEsSvc);
     	checker.setCollectInfo(collectInfo);
@@ -137,7 +122,6 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                            checker.setStop(true);
 	                            checker.join();
 	                            driver.close();
-	                            //DriverFactory.getInstance().removeDriver();
 
 	                    		return;
 	                    	}
@@ -150,7 +134,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                    	
 	                    	
 	                    	
-	                    	Optional<ItemObject> temp = webItemEsSvc.findByBase64(item.getBase64());
+	                    	Optional<ItemObject> temp = webItemEsSvc.findByHash(item.getHash());
 	                    	if(!temp.isEmpty()) {
 	                    		ItemObject duplicateItem = temp.get();
 	                    		duplicateItem.setCollectId(item.getCollectId());
@@ -162,7 +146,12 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                    	 * */
 	                    	String htmlText = null;
 	                    	try {
-		                    	driver.get(item.getLink());
+	                    		String link = item.getLink();
+	                    		if(link.contains("?Redirect=Log&amp;logNo=")) {
+	                    			link = link.replace("?Redirect=Log&amp;logNo=", "/");
+	                    			item.setLink(link);
+	                    		}
+		                    	driver.get(link);
 		                    	Alert alt = driver.switchTo().alert();
 		            			if(alt!=null) 
 		            				alt.dismiss();
@@ -170,39 +159,54 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 								//alert 미발견시 exception 발생
 							}
 		                    
-	                    	//naver blog data일 경우 mainframe을 찾아야함
+	                    	//naver blog일 경우 mainframe을 찾아야함
 							try {
-								WebElement frame = null;
-		                    	do {
-		                    		frame = null;
-		                    		if(CrawlerUtil.elementExist(driver, "mainFrame")) {
-		            					frame = driver.findElement(By.id("mainFrame"));
-		            				}
-		            				else if(CrawlerUtil.elementExist(driver, "screenFrame")) {
-		            					frame = driver.findElement(By.id("screenFrame"));
-		            				}
-		            				if(frame!=null)
-		            					driver.switchTo().frame(frame);	
-		            				
-								} while (frame!=null);
-		                    	
 		                    	if(apiType.equals("blog")) {
-		                    		/*
-		                    		 * naver blog postListBody 로딩이 느려 3초안에 postListBody를 다운받도록 한다.
-		                    		 * */
-		                    		WebDriverWait wait = new WebDriverWait(driver, 3);
-	                    			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("postListBody")));
-	                    			htmlText = driver.findElement(By.id("postListBody")).getText();
+									WebElement frame = null;
+			                    	do {
+			                    		frame = null;
+			                    		if(CrawlerUtil.elementExist(driver, "mainFrame")) {
+			            					frame = driver.findElement(By.id("mainFrame"));
+			            				}
+			            				else if(CrawlerUtil.elementExist(driver, "screenFrame")) {
+			            					frame = driver.findElement(By.id("screenFrame"));
+			            				}
+			            				if(frame!=null)
+			            					driver.switchTo().frame(frame);
+									} while (frame!=null);
+		                    		
+		                    		for (int k = 0; k < searchClasses.length; k++) {
+		                    			try {
+		                    				try {
+					                    		WebDriverWait wait = new WebDriverWait(driver, 1);
+				                    			wait.until(ExpectedConditions.presenceOfElementLocated(By.className(searchClasses[k])));
+				                    			htmlText = driver.findElement(By.cssSelector(searchClasses[k])).getText();	
+				                    		} catch (Exception e) {
+				                    			htmlText = driver.findElement(By.cssSelector(searchClasses[k])).getText();
+											}
+										} catch (NoSuchElementException e) {
+											continue;
+										}
+		                    			
+		                    			
+		                    			if(htmlText!=null)
+		                    				 break;
+									}
 		                    	}
 		                    	
 		                    	if(htmlText==null) {
 		                    		htmlText = driver.findElement(By.tagName("body")).getText();
-		                    	}	
+		                    	}
 							} catch (Exception e) {
 								htmlText = "";
 							}
                     		
-	                    	
+	                    	if(htmlText!=null) {
+	                    		//api를 통해 찾은 데이터가 null이 아닌경우 keyword가 포함되어 있어야 한다. 
+	                    		if(!htmlText.contains(keyword)) {
+	                    			htmlText="";
+	                    		}
+	                    	}
 	                    	
 	                    	item.setHtmlText(htmlText);
 	                        webItemEsSvc.save(item);
@@ -220,7 +224,6 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
             checker.setStop(true);
             checker.join();
             driver.close();
-            //DriverFactory.getInstance().removeDriver();
 
     	 } catch (Exception e) {
              e.printStackTrace();

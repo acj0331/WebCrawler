@@ -13,6 +13,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 public class CrawlerUtil {
@@ -37,17 +38,28 @@ public class CrawlerUtil {
 	public static WebDriver getSeleniumWebDriver() {
 		WebDriver driver = null;
 		if (isWindows())
-			System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver.exe");	//chrome : webdriver.chrome.driver
+			System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver.exe"); // chrome :
+																											// webdriver.chrome.driver
 		else
 			System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver");
-		
+		FirefoxProfile profile = new FirefoxProfile();
+
+//		profile.setPreference("permissions.default.stylesheet", 2);
+//		profile.setPreference("permissions.default.image", 2);
+//		profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", false);
+		// profile.setPreference("dom.disable_open_during_load", true);
+		profile.setPreference("dom.disable_beforeunload", true);
+		profile.setPreference("dom.popup_maximum", 0);
+		profile.setPreference("privacy.popups.showBrowserMessage", false);
+
 		FirefoxOptions options = new FirefoxOptions();
-		options.setHeadless(true);
+		options.setProfile(profile);
+		// options.setHeadless(true);
 		driver = new FirefoxDriver(options);
-		
+
 		return driver;
 	}
-	
+
 	public static boolean elementExist(WebDriver driver, String id) {
 		try {
 			driver.findElement(By.id(id));
@@ -55,12 +67,12 @@ public class CrawlerUtil {
 			// TODO: handle exception
 			return false;
 		}
-		
+
 		return true;
 	}
-	
-	
-	public static void testWeb() {}
+
+	public static void testWeb() {
+	}
 
 	public static String RequestAPI(String apiURL, RequestMethod method, Map<String, String> header) throws Exception {
 		HttpURLConnection con;

@@ -1,6 +1,5 @@
 package com.cjahn.webcrawler.elasticsearch.service;
 
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
 import java.util.List;
@@ -65,9 +64,9 @@ public class WebSummaryESServiceImpl implements WebSummaryESService{
 	}
 
 	@Override
-	public Optional<ItemObject> findByBase64(String base64) {
+	public Optional<ItemObject> findByHash(String hash) {
 		// TODO Auto-generated method stub
-		return repository.findByBase64(base64);
+		return repository.findByHash(hash);
 	}
 
 	@Override

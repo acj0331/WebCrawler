@@ -63,6 +63,12 @@ public class CollectController {
         return "collect";
     }
     
+    @RequestMapping(value="/clear",method=RequestMethod.GET)
+    public String clear(Model model) {
+    	crawlerService.clearWebDriver();
+    	return "collect";
+    }
+    
     @RequestMapping(value="/cancel", method=RequestMethod.GET)
     public String cancel(
     		@RequestParam(value="id", required=false) String id,

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.cjahn.webcrawler.config.OpenAPIConfig;
 import com.cjahn.webcrawler.elasticsearch.service.CollectESService;
 import com.cjahn.webcrawler.elasticsearch.service.WebSummaryESService;
+import com.cjahn.webcrawler.object.CollectInfo;
 import com.cjahn.webcrawler.object.ItemObject;
 import com.cjahn.webcrawler.object.NaverObject;
 import com.cjahn.webcrawler.utility.CrawlerChecker;
@@ -78,13 +79,13 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
     
     @Override
     @Async("WebCrawlingExecutor")
-    public void doCollectAsync() {
-    	this.doCollect();
+    public void doCollectAsync(WebDriver driver, CollectInfo collectInfo) {
+    	this.doCollect(driver, collectInfo);
     }
 
     @Override
-    public void doCollect() {
-    	WebDriver driver = CrawlerUtil.getSeleniumWebDriver();
+    public void doCollect(WebDriver driver, CollectInfo collectInfo) {
+//    	WebDriver driver = CrawlerUtil.getSeleniumWebDriver();
     	CrawlerChecker checker = new CrawlerChecker();
     	checker.setCollectEsSvc(collectEsSvc);
     	checker.setCollectInfo(collectInfo);
@@ -92,8 +93,8 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
     	
     	try {
     		
-	    	for (int i = 0; i < this.collectInfo.getKeyWordList().size(); i++) {
-				String keyword = this.collectInfo.getKeyWordList().get(i);
+	    	for (int i = 0; i < collectInfo.getKeyWordList().size(); i++) {
+				String keyword = collectInfo.getKeyWordList().get(i);
 				String text = URLEncoder.encode(keyword, "UTF-8");
 	            Iterator<String> apiTypes = this.urls.keySet().iterator();
 	            while( apiTypes.hasNext() ){
@@ -121,7 +122,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
 	                    	if(checker.getCrawlerStatus().equals("canceled")) {
 	                            checker.setStop(true);
 	                            checker.join();
-	                            driver.close();
+//	                            driver.close();
 
 	                    		return;
 	                    	}
@@ -223,7 +224,7 @@ public class NaverCrawler extends CrawlerCore implements NaverCrawlerInterface  
             collectEsSvc.save(collectInfo);
             checker.setStop(true);
             checker.join();
-            driver.close();
+//            driver.close();
 
     	 } catch (Exception e) {
              e.printStackTrace();

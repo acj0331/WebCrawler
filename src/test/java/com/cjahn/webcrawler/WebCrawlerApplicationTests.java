@@ -52,8 +52,7 @@ public class WebCrawlerApplicationTests {
 	    //req.setId(System.currentTimeMillis());
 	    //req.setCrawlerStatus("crawling");
 	    collectEsSvc.save(collectInfo);
-		naverCrawler.setReqCollect(collectInfo);
-		naverCrawler.doCollect();
+		naverCrawler.doCollect(CrawlerUtil.getSeleniumWebDriver(), collectInfo);
 		
 	}
 	

@@ -37,26 +37,61 @@ public class CrawlerUtil {
 
 	public static WebDriver getSeleniumWebDriver() {
 		WebDriver driver = null;
-		if (isWindows())
-			System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver.exe"); // chrome :
-																											// webdriver.chrome.driver
-		else
+		if (isWindows()) {
+			System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver.exe"); //firefox
+			System.setProperty("webdriver.chrome.driver", "src/main/resources/web-driver/chromedriver.73.0.3683.68_win.exe"); //chrome 
+		}
+		else {
 			System.setProperty("webdriver.gecko.driver", "src/main/resources/web-driver/geckodriver");
+			System.setProperty("webdriver.chrome.driver", "src/main/resources/web-driver/chromedriver.73.0.3683.68_linux");
+		}
 		FirefoxProfile profile = new FirefoxProfile();
-
-//		profile.setPreference("permissions.default.stylesheet", 2);
-//		profile.setPreference("permissions.default.image", 2);
-//		profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", false);
-		// profile.setPreference("dom.disable_open_during_load", true);
-		profile.setPreference("dom.disable_beforeunload", true);
-		profile.setPreference("dom.popup_maximum", 0);
-		profile.setPreference("privacy.popups.showBrowserMessage", false);
-
-		FirefoxOptions options = new FirefoxOptions();
-		options.setProfile(profile);
+////		FirefoxProfile profile = new FirefoxProfile(new File("C:\\Users\\changju.ahn\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\8twi9i1b.default"));
+////		profile.setPreference("permissions.default.stylesheet", 2);
+////		profile.setPreference("permissions.default.image", 2);
+////		profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", false);
+//		// profile.setPreference("dom.disable_open_during_load", true);
+		//profile.setPreference("dom.disable_beforeunload", true);
+		//profile.setPreference("dom.popup_maximum", 0);
+		//profile.setPreference("privacy.popups.showBrowserMessage", false);
+//
+		//FirefoxOptions options = new FirefoxOptions();
+		//options.setProfile(profile);
 		// options.setHeadless(true);
-		driver = new FirefoxDriver(options);
+		//driver = new FirefoxDriver(options);
+		
+		
+		/*
+		ChromeOptions options = new ChromeOptions();
+		Map<String, Object> prefs = new HashMap<String, Object>();
+		//	prefs.put("profile.default_content_settings.popups", 0);
+//		prefs.put("profile.default_content_settiong_values.notifications", 2);
+		//prefs.put("profile.default_content_setting_values.popups", 2);
+		
+		prefs.put("profile.managed_default_content_settings.images",2);
+		prefs.put("profile.default_content_setting_values.notifications",2);
+		prefs.put("profile.managed_default_content_settings.stylesheets",2);
+		prefs.put("profile.managed_default_content_settings.cookies",2);
+		prefs.put("profile.managed_default_content_settings.javascript",1);
+		prefs.put("profile.managed_default_content_settings.plugins",1);
+		prefs.put("profile.managed_default_content_settings.popups",2);
+		prefs.put("profile.managed_default_content_settings.geolocation",2);
+		prefs.put("profile.managed_default_content_settings.media_stream",2);
 
+		options.setExperimentalOption("prefs", prefs);
+//		options.addArguments("-incognito");
+		
+		//options.addArguments("window-size=1920x1080");
+		//options.addArguments("headless");
+		//options.addArguments("disable-gpu");
+//		
+//		driver =new ChromeDriver(options);
+//		Map<String, Object> prefs = new HashMap<String, Object>();
+//		
+//		options.setExperimentalOption("prefs", prefs);
+		options.addArguments("test-type");
+		options.addArguments("disable-popup-blocking");
+		driver = new ChromeDriver(options);*/
 		return driver;
 	}
 

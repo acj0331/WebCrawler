@@ -4,16 +4,52 @@
 <meta charset="UTF-8">
 <title th:text=${pagename}></title>
 <script src="js/jquery-1.12.4.js"></script>
+<script src="js/utility.js"></script>
 <script>
 	function millisecondsToDate(elem) {
 		var date = parseInt(elem.text());
-		date = new Date(date).toISOString();
-		elem.text(date);
+		if (!isNaN(date)) {
+			date = new Date(date);
+			elem.text(date.customFormat( "#YYYY#-#MM#-#DD# #hh#:#mm#:#ss#" ));
+		}
+	}
+
+	function cancelCrawling(element) {
+		var conf = confirm("취소하시겠습니까?");
+		if (conf == false)
+			return;
+		var id = $(element).parent().parent().parent().find(".startDate").attr(
+				"id");
+		$.ajax({
+			url : "/cancel?id=" + id,
+			type : "GET",
+			success : function() {
+				alert("취소되었습니다.");
+				location.reload();
+			}
+		});
+
 	}
 
 	$(document).ready(function() {
-		millisecondsToDate($(".startDate"));
-		millisecondsToDate($(".endDate"));
+
+		$(".startDate, .endDate").each(function() {
+			millisecondsToDate($(this));
+		});
+
+		$(".startDate, .keywords, .status, .endDate").click(function() {
+			var id = $(this).parent().find(".startDate").attr("id");
+			document.location.href = '/collect_info?id=' + id;
+		});
+		
+		var row = $(".pageList").attr("row");
+		var total = $(".pageList").attr("total");
+		
+		for(var i = 0; i<=parseInt(total/row); i++){
+			console.log(i);
+			var tag = "<a href=\"/collect?page="+(i+1)+"\">"+(i+1)+"</a>";
+			$(".pageList").append(tag);
+		}
 	});
 </script>
 <style>
@@ -26,6 +62,18 @@ th, td {
 	border: 1px solid #444444;
 	padding: 5px;
 }
+
+tbody>tr:hover {
+	background-color: #cbcbff;
+}
+
+.startDate, .keywords, .status, .endDate {
+	cursor: pointer;
+}
+
+.pageList>a{
+	margin-right:10px;
+}
 </style>
 </head>
 <body>
@@ -35,36 +83,55 @@ th, td {
 
 	<h1>데이터 수집목록</h1>
 	<form action="/collect">
-		<input type="date" name="startDate"/>&nbsp;~&nbsp;<input type="date" name="endDate"/>
-		<input type="submit" value="검색"/>
+		<input type="date" name="startDate" />&nbsp;~&nbsp;<input type="date" name="endDate" /> <input type="submit" value="검색" />
 	</form>
 	<br />
+	<button onclick="document.location.href='/collect_info'" style="margin-bottom: 20px;">생성</button>
+
+	<br />
 	<table>
-		<tr>
-			<td>검색일시</td>
-			<td>키워드</td>
-			<td>검색상태</td>
-			<td>검색종료</td>
-			<td>관리</td>
-		</tr>
-		<tr th:each="collect : ${collectList}">
-			<td class="startDate" th:text="${collect.id}"></td>
-			<td class="keywords">
-				<span th:each="keywords : ${collect.keyWordList}"> 
-					<span th:text="${keywords}"></span>
-				</span>
-			</td>
-			<td class="status" th:switch="${collect.crawlerStatus}">
-				<p th:case="crawling">작업증</p>
-				<p th:case="canceled">취소</p>
-				<p th:case="finished">완료</p>
-			</td>
-			<td class="endDate" th:text="${collect.endDate}"></td>
-			<td>
-				<p th:if="${collect.crawlerStatus == 'crawling'}">중지</p>
-				<p th:unless="${collect.crawlerStatus == 'crawling'}">-</p>
-			</td>
-		</tr>
+		<thead>
+			<tr>
+				<td>검색일시</td>
+				<td>검색포털</td>
+				<td>키워드</td>
+				<td>검색상태</td>
+				<td>검색건수</td>
+				<td>검색종료</td>
+				<td>관리</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="collect : ${collectList}">
+				<td class="startDate" th:attr="id=${collect.id}"
+					th:text="${collect.id}"></td>
+				<td class="webportals"><span
+					th:each="webportal : ${collect.webPortalList}"> <span
+						th:text="${webportal}"></span>
+				</span></td>
+				<td class="keywords"><span
+					th:each="keyword : ${collect.keyWordList}"> <span
+						th:text="${keyword}"></span>
+				</span></td>
+				<td class="status" th:switch="${collect.crawlerStatus}">
+					<p th:case="crawling">작업중</p>
+					<p th:case="canceled">취소</p>
+					<p th:case="finished">완료</p>
+				</td>
+				<td class="collectCount" th:text="${collect.collectCount}"></td>
+				<td class="endDate" th:text="${collect.endDate}"></td>
+				<td>
+					<p th:if="${collect.crawlerStatus == 'crawling'}">
+						<button onclick="cancelCrawling(this)">중지</button>
+					</p>
+					<p th:unless="${collect.crawlerStatus == 'crawling'}">-</p>
+				</td>
+			</tr>
+		</tbody>
 	</table>
+	<div class="pageList" th:attr="row=${row}, total=${total}">
+		
+	</div>
+	
 </body>
 </html>

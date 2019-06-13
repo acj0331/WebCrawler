@@ -1,10 +1,13 @@
 package com.cjahn.webcrawler.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +17,11 @@ import com.cjahn.webcrawler.core.service.KakaoCrawler;
 import com.cjahn.webcrawler.core.service.NaverCrawler;
 import com.cjahn.webcrawler.elasticsearch.service.CollectESService;
 import com.cjahn.webcrawler.object.CollectInfo;
+import com.cjahn.webcrawler.utility.CrawlerUtil;
 
 @Service
 public class WebCrawlerService {
-	List<CrawlerCore> crawlerList;
+	Map<String, CrawlerCore> crawlerMap;
 	
 	@Autowired
 	CollectESService reqCollectESService;
@@ -29,28 +33,41 @@ public class WebCrawlerService {
     NaverCrawler naverCrawler;
     @Autowired
     KakaoCrawler kakaoCrawaler;
+
+    List<WebDriver> webDriverList;
     
     @PostConstruct
     public void init() {
-    	this.crawlerList = new ArrayList<CrawlerCore>();
-    	this.crawlerList.add(naverCrawler);
-    	//this.crawlerList.add(kakaoCrawaler);
+    	this.crawlerMap = new HashMap<String, CrawlerCore>();
+    	this.crawlerMap.put("naver", naverCrawler);
+    	this.crawlerMap.put("kakao", kakaoCrawaler);
+    	this.webDriverList = new ArrayList<WebDriver>();
     }
+    
+    public void clearWebDriver() {
+    	for (int i = 0; i < this.webDriverList.size(); i++) {
+			this.webDriverList.get(i).close();
+		}
+    	this.webDriverList.clear();
+    }
+    
 	
 	public void doCollect(CollectInfo reqCollect) {
 		CollectInfo collectInfo = reqCollectESService.save(reqCollect);
 		
-		//collect는 별도의 thread로 동작시키며, 해당 thread는 수집중, 수집완료 의 상태를 갖는다.
-		reqCollect.getWebPortalList().forEach(v->{			
-			this.crawlerList.forEach(v2->{
-				try {
-					v2.setReqCollect(collectInfo);
-					v2.doCollectAsync();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+		reqCollect.getWebPortalList().forEach(webportal->{
+			try {
+				CrawlerCore crawler = this.crawlerMap.get(webportal);
+				if(crawler!=null)
+				{
+			    	WebDriver driver = CrawlerUtil.getSeleniumWebDriver();
+			    	
+					crawler.doCollectAsync(driver, collectInfo);
+					this.webDriverList.add(driver);
 				}
-			});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		});
 	}
 }

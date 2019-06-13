@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title th:text=${pagename}></title>
+<script src="js/jquery-1.12.4.js"></script>
+<script>
+	function deleteKeyword(element){
+		$(element).parent().remove();
+	}
+	$(document).ready(function() {
+		$("#plusKeyword").click(function(){
+			var elem = $("<div class=\"keywordSet\"></div>");
+			elem.append("<input type=\"text\"/>");
+			elem.append("<button class=\"deleteKeyword\" onclick=\"deleteKeyword(this)\">-</button>");
+			console.log(elem.html());
+			
+			$("#keywordValues").append(elem);
+		});
+		
+		$("#start").click(function(){
+			var collectInfo = new Object();
+			collectInfo.webPortalList = [];
+			collectInfo.keyWordList = [];
+			$(".webPortalList>input[type=\"checkbox\"]").each(function(){
+				if($(this).is(":checked"))
+					collectInfo.webPortalList.push($(this).val());
+			});
+			
+			$(".keywordSet>input[type=\"text\"]").each(function(){
+				collectInfo.keyWordList.push($(this).val());
+			});
+			
+			$.ajax({
+	    		url: "/collect_info",
+	    		type: "POST",
+	    		contentType:"application/json",
+	    		charset:"utf-8",
+	    		data: JSON.stringify(collectInfo),
+	    		success : function(){
+	    			console.log("success");
+	    			document.location.href="/collect";
+	    		}
+	    	});
+			console.log(collectInfo);
+		});
+		
+		
+		if($(".keywordSet").length>1){
+			var i=0;
+			$(".keywordSet").each(function(){
+				if(i!=0){
+					//$(this).append("<button class=\"deleteKeyword\" onclick=\"deleteKeyword(this)\">-</button>");	
+				}
+				i++;
+			});
+			
+		}
+	});
+</script>
+<style>
+button#plusKeyword, button.deleteKeyword {
+    height: 30px;
+    width: 30px;
+    margin-left: 10px;
+    box-sizing: border-box;
+}
+button#plusKeyword {
+    margin-left: 0px;
+}
+
+input[type="text"] {
+    height: 30px;
+    min-width: 580px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    border-radius: 3px;
+    border: 1px solid #cdcdcd;
+}
+</style>
+</head>
+<body>
+	<button onclick="history.back()">이전</button>
+	<div th:if="${collect != null}">
+		<h1 th:text="'데이터 수집('+${collect.collectCount}+'건)'"></h1>
+	</div>
+	<div th:unless="${collect != null}">
+		<h1>데이터 수집</h1>
+	</div>
+	<fieldset>
+		<legend>검색포털</legend>
+		<div class="webPortalList" th:if="${collect != null}">
+			<p th:each="webPortal : ${collect.webPortalList}" th:text="${webPortal}"></p>
+		
+			<!-- <input type="checkbox" name="webportal" th:each="entry : ${apiConfig}" th:attr="value=${entry.key}" th:text="${entry.value.name}"/> -->
+		</div>
+		<div class="webPortalList" th:unless="${collect != null}">
+			<input type="checkbox" name="webportal" th:each="entry : ${apiConfig}" th:attr="value=${entry.key}" th:text="${entry.value.name}"/>
+		</div>
+	</fieldset>
+	<fieldset>
+		<legend>검색키워드</legend>
+		<div id="keywordList" th:if="${collect != null}">
+			<div id="keywordValues">
+				<div class="keywordSet" th:each="keywords : ${collect.keyWordList}"><input type="text" disabled="disabled" th:attr="value=${keywords}"/></div>
+			</div>
+		</div>
+		<div id="keywordList" th:unless="${collect != null}">
+			<div id="keywordValues">
+				<div class="keywordSet">
+					<input type="text"/>
+				</div>
+			</div>
+			<button id="plusKeyword">+</button>
+		</div>
+	</fieldset>
+	<button id="start" th:unless="${collect != null}">시작</button>
+</body>
+</html>

@@ -18,5 +18,7 @@ public interface WebSummaryESService {
     
     List<ItemObject> findByUrl(String url);
     List<ItemObject> findByTitle(String title);
-    Optional<ItemObject> findByBase64(String base64);
+    Optional<ItemObject> findByHash(String hash);
+
+	public Long getTotalCount(Long id);
 }

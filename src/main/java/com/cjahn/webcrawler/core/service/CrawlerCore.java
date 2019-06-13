@@ -6,20 +6,14 @@ import org.openqa.selenium.WebDriver;
 
 import com.cjahn.webcrawler.object.CollectInfo;
 
-public class CrawlerCore extends Thread {
+public class CrawlerCore {
 	protected LinkedHashMap<String, Object> config;
-	protected CollectInfo collectInfo;
-	protected static WebDriver driver;
-	
-	public void setReqCollect(CollectInfo collectInfo) {
-		this.collectInfo = collectInfo;
-	}
 
-	public void doCollectAsync() throws Exception{
+	public void doCollectAsync(WebDriver driver, CollectInfo collectInfo) throws Exception{
 		throw new Exception("Not supported");
 	}
 	
-	public void doCollect() throws Exception{
+	public void doCollect(WebDriver driver, CollectInfo collectInfo) throws Exception{
 		throw new Exception("Not supported");
 	}
 }

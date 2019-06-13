@@ -12,5 +12,5 @@ public interface WebSummaryRepository extends ElasticsearchRepository<ItemObject
 
 	List<ItemObject> findByTitle(String title);
 
-	Optional<ItemObject> findByBase64(String base64);
+	Optional<ItemObject> findByHash(String hash);
 }
